@@ -5,9 +5,174 @@
     xmlns:local="using:ActViz"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:Microsoft.Toolkit.Uwp.UI.Converters"
+    xmlns:appmodel="using:Windows.ApplicationModel"
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    Loaded="Page_Loaded"
     mc:Ignorable="d">
 
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" 
+                                              TrueValue="Visible" FalseValue="Collapsed" />
+    </Page.Resources>
+    
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <NavigationView x:Name="mainNavView" 
+                        CompactModeThresholdWidth="1008"
+                        ExpandedModeThresholdWidth="1920"
+                        IsSettingsVisible="False"
+                        ItemInvoked="NavigationView_ItemInvoked"
+                        MenuItemsSource="{x:Bind _viewModel.MainNavMenu}">
+            <NavigationView.PaneFooter>
+                <StackPanel Orientation="Vertical">
+                    <NavigationViewList IsItemClickEnabled="True"
+                                    ItemClick="NavigationViewList_ItemClick"
+                                    ItemsSource="{x:Bind _viewModel.FooterMenu}">
+                    </NavigationViewList>
+                    <NavigationViewList x:Name="navViewListAppLog" 
+                                        SelectionMode="Single"
+                                        IsItemClickEnabled="True"
+                                        ItemClick="navViewListAppLog_ItemClick">
+                        <NavigationViewList.Items>
+                            <NavigationViewItem Content="Application Log" Tag="log" 
+                                                IsSelected="{x:Bind  _viewModel.IsLogVisible, Mode=OneWay}">
+                                <NavigationViewItem.Icon>
+                                    <FontIcon Glyph="&#xE946;" />
+                                </NavigationViewItem.Icon>
+                            </NavigationViewItem>
+                        </NavigationViewList.Items>
+                    </NavigationViewList>
+                </StackPanel>
+            </NavigationView.PaneFooter>
+            <Grid Margin="24">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Frame x:Name="mainFrame"
+                       Grid.Row="0" Grid.Column="0"
+                       Grid.ColumnSpan="2"
+                       Grid.RowSpan="2" />
+                <controls:GridSplitter 
+                        Grid.Column="1" Grid.Row="0" Grid.RowSpan="2"
+                        x:Name="gspVertical"
+                        ResizeBehavior="BasedOnAlignment"
+                        ResizeDirection="Columns"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Stretch"
+                        Background="Gray"  Foreground="White"
+                        Width="11" FontSize="13"
+                        Visibility="{x:Bind _viewModel.IsVerticalLogVisible, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                    <controls:GridSplitter.Element>
+                        <Grid>
+                            <TextBlock 
+                                    HorizontalAlignment="Center"     
+                                    IsHitTestVisible="False"
+                                    VerticalAlignment="Center"  
+                                    Text="&#xE784;"
+                                    Foreground="Black" 
+                                    FontFamily="Segoe MDL2 Assets">
+                            </TextBlock>
+                        </Grid>
+                    </controls:GridSplitter.Element>
+                </controls:GridSplitter>
+                <controls:GridSplitter 
+                        Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
+                        x:Name="gspHorizontal"
+                        ResizeBehavior="BasedOnAlignment"
+                        ResizeDirection="Rows"
+                        VerticalAlignment="Top"
+                        HorizontalAlignment="Stretch" 
+                        Background="Gray" Foreground="White"
+                        Height="11" FontSize="13"
+                        Visibility="{x:Bind _viewModel.IsHorizontalLogVisible, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                    <controls:GridSplitter.Element>
+                        <Grid>
+                            <TextBlock 
+                                    HorizontalAlignment="Center"     
+                                    IsHitTestVisible="False"
+                                    VerticalAlignment="Center"  
+                                    Text="&#xE76F;"
+                                    Foreground="Black" 
+                                    FontFamily="Segoe MDL2 Assets">
+                            </TextBlock>
+                        </Grid>
+                    </controls:GridSplitter.Element>
+                </controls:GridSplitter>
+                <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" 
+                          x:Name="gridLogText" Margin="5" Padding="0, 15, 0, 0"
+                          Visibility="{x:Bind _viewModel.IsLogVisible, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="1*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <TextBox 
+                            Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4"
+                            x:Name="tbAppLog" 
+                            Text="{x:Bind _viewModel.appLog.Log, Mode=OneWay}" 
+                            TextWrapping="Wrap" Margin="5"
+                            IsReadOnly="True" AcceptsReturn="True"/>
+                    <CheckBox x:Name="cbDebugLog" 
+                                  Grid.Row="0" Grid.Column="0" 
+                                  Content="Debug Enable" 
+                                  VerticalAlignment="Center"
+                                  Unchecked="cbDebugLog_Unchecked"
+                                  Checked="cbDebugLog_Checked"/>
+                    <Button x:Name="btnHorizontalSplit" 
+                                Grid.Row="0" Grid.Column="2"
+                                FontFamily="Segoe MDL2 Assets" 
+                                Content="&#xE76F;" 
+                                Background="Transparent"
+                                BorderBrush="Black" 
+                                BorderThickness="1" 
+                                Padding="4" Margin="5"
+                                ToolTipService.ToolTip="Horizontal Split"
+                                Visibility="{x:Bind _viewModel.IsVerticalLogVisible, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
+                                Click="btnHorizontalSplit_Click"/>
+                    <Button x:Name="btnVerticalSplit" 
+                                Grid.Row="0" Grid.Column="2"
+                                FontFamily="Segoe MDL2 Assets" 
+                                Content="&#xE784;" 
+                                Background="Transparent"                            
+                                BorderBrush="Black" BorderThickness="1" 
+                                Padding="4" Margin="5"
+                                ToolTipService.ToolTip="Vertical Split"
+                                Visibility="{x:Bind _viewModel.IsHorizontalLogVisible, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
+                                Click="btnVerticalSplit_Click"/>
+                    <Button x:Name="btnLogSave" 
+                                Grid.Row="0" Grid.Column="1"
+                                FontFamily="Segoe MDL2 Assets" 
+                                Content="&#xE74E;" Background="Transparent"
+                                BorderBrush="Black" BorderThickness="1" 
+                                Padding="4" Margin="5"
+                                ToolTipService.ToolTip="Save"
+                                Click="btnLogSave_ClickAsync"/>
+                </Grid>
+            </Grid>
+        </NavigationView>
+        <controls:Loading x:Name="LoadingControl" HorizontalContentAlignment="Center" 
+                          VerticalContentAlignment="Center"
+                          Background="Black" Opacity="0.8">
+            <ContentControl x:Name="LoadingContentControl">
+                <StackPanel Orientation="Horizontal" Padding="12">
+                    <ProgressRing IsActive="True" Margin="0,0,12,0" Foreground="{StaticResource SystemControlForegroundBaseHighBrush}" />
+                    <TextBlock Text="Loading Datasets" VerticalAlignment="Center" Foreground="White"/>
+                </StackPanel>
+            </ContentControl>
+        </controls:Loading>
+        <TextBlock x:Name="AppTitle" Style="{StaticResource CaptionTextBlockStyle}" 
+                   Text="{x:Bind appmodel:Package.Current.DisplayName}" 
+                   IsHitTestVisible="False"/>
 
     </Grid>
-</Page>
+</Page> 
