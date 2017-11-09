@@ -20,9 +20,9 @@
         <NavigationView x:Name="mainNavView" 
                         CompactModeThresholdWidth="1008"
                         ExpandedModeThresholdWidth="1920"
+                        AlwaysShowHeader="False"
                         IsSettingsVisible="False"
-                        ItemInvoked="NavigationView_ItemInvoked"
-                        MenuItemsSource="{x:Bind _viewModel.MainNavMenu}">
+                        SelectionChanged="mainNavView_SelectionChanged">
             <NavigationView.PaneFooter>
                 <StackPanel Orientation="Vertical">
                     <NavigationViewList IsItemClickEnabled="True"
@@ -166,7 +166,7 @@
             <ContentControl x:Name="LoadingContentControl">
                 <StackPanel Orientation="Horizontal" Padding="12">
                     <ProgressRing IsActive="True" Margin="0,0,12,0" Foreground="{StaticResource SystemControlForegroundBaseHighBrush}" />
-                    <TextBlock Text="Loading Datasets" VerticalAlignment="Center" Foreground="White"/>
+                    <TextBlock x:Name="LoadingMessage"  Text="" VerticalAlignment="Center" Foreground="White"/>
                 </StackPanel>
             </ContentControl>
         </controls:Loading>

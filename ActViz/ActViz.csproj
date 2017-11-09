@@ -95,13 +95,57 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\DateSlider.cs" />
+    <Compile Include="Dialogs\DatabaseConnectionDialog.xaml.cs">
+      <DependentUpon>DatabaseConnectionDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Helpers\Logger.cs" />
+    <Compile Include="Helpers\NavigationViewItemHelper.cs" />
     <Compile Include="Helpers\ObservableObject.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Models\Activity.cs" />
+    <Compile Include="Models\Dataset.cs" />
+    <Compile Include="Models\Resident.cs" />
+    <Compile Include="Models\Sensor.cs" />
+    <Compile Include="Models\SensorEvent.cs" />
+    <Compile Include="Models\SensorType.cs" />
+    <Compile Include="Models\Site.cs" />
+    <Compile Include="Pages\DatabaseImportPage.xaml.cs">
+      <DependentUpon>DatabaseImportPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\DatasetConfigurePage.xaml.cs">
+      <DependentUpon>DatasetConfigurePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\DatasetEventsPage.xaml.cs">
+      <DependentUpon>DatasetEventsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\DatasetSelectionPage.xaml.cs">
+      <DependentUpon>DatasetSelectionPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\DatasetViewPage.xaml.cs">
+      <DependentUpon>DatasetViewPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\EmptyPage.xaml.cs">
+      <DependentUpon>EmptyPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\SiteSelectionPage.xaml.cs">
+      <DependentUpon>SiteSelectionPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\CasasDatabaseService.cs" />
+    <Compile Include="Services\LocalMetadataService.cs" />
+    <Compile Include="ViewModels\DatabaseConnectionViewModel.cs" />
+    <Compile Include="ViewModels\DatabaseImportViewModel.cs" />
+    <Compile Include="ViewModels\DatasetEventsViewModel.cs" />
+    <Compile Include="ViewModels\DatasetSelectionViewModel.cs" />
+    <Compile Include="ViewModels\DatasetViewModel.cs" />
+    <Compile Include="ViewModels\EventOffset.cs" />
+    <Compile Include="ViewModels\EventViewFilter.cs" />
     <Compile Include="ViewModels\MainPageViewModel.cs" />
+    <Compile Include="ViewModels\SiteSelectionViewModel.cs" />
+    <Compile Include="ViewModels\TestBedViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -124,9 +168,41 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Dialogs\DatabaseConnectionDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Pages\DatabaseImportPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\DatasetConfigurePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\DatasetEventsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\DatasetSelectionPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\DatasetViewPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\EmptyPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\SiteSelectionPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
@@ -145,10 +221,11 @@
     <PackageReference Include="SSH.NET">
       <Version>2016.1.0</Version>
     </PackageReference>
+    <PackageReference Include="TimeZoneConverter">
+      <Version>2.1.0</Version>
+    </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Pages\" />
-  </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

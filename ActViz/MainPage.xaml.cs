@@ -1,4 +1,5 @@
 ﻿using ActViz.Helpers;
+using ActViz.Pages;
 using ActViz.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -28,6 +30,33 @@ namespace ActViz
     public sealed partial class MainPage : Page
     {
         MainPageViewModel _viewModel = new MainPageViewModel();
+        Action<NavigationView, NavigationViewSelectionChangedEventArgs> navViewCustomAction;
+
+        // Default Navigation Items in Main Page
+        NavigationViewItem navigationViewItemSites = new NavigationViewItem() {
+            Icon = new FontIcon() { Glyph = "\xE913" },
+            Content = "Sites",
+            Tag = "sites"
+        };
+        NavigationViewItem navigationViewItemDatasets = new NavigationViewItem()
+        {
+            Icon = new FontIcon() { Glyph = "\xE8F1" },
+            Content = "Datasets",
+            Tag = "datasets"
+        };
+        NavigationViewItem navigationViewItemDatabase {
+            get {
+                return new NavigationViewItem()
+                {
+                    Icon = new FontIcon() { Glyph = "\xE968" },
+                    Content = "Import From Database",
+                    Tag = "database"
+                };
+            }
+        }
+
+        // Store foreground brush for NavigationViewItem
+        Brush navigationViewItemForegroundDefault;
 
         public MainPage()
         {
@@ -39,6 +68,8 @@ namespace ActViz
             _viewModel.appLog.Info(this.GetType().ToString(), "MainPage Loaded.");
             CoreApplicationViewTitleBar titleBar = CoreApplication.GetCurrentView().TitleBar;
             titleBar.LayoutMetricsChanged += TitleBar_LayoutMetricsChanged;
+            BackToEmpty();
+            navigationViewItemForegroundDefault = navigationViewItemDatasets.Foreground;
         }
 
         private void TitleBar_LayoutMetricsChanged(CoreApplicationViewTitleBar sender, object args)
@@ -60,7 +91,7 @@ namespace ActViz
                 Grid.SetRowSpan(mainFrame, 2);
                 Grid.SetColumnSpan(mainFrame, 2);
                 // Set Visual State
-                VisualStateManager.GoToState(item, "Checked", true);
+                NavigationViewItemHelper.SetNavigationViewItemIndicator(item, false);
             }
             else
             {
@@ -76,7 +107,7 @@ namespace ActViz
                     Grid.SetColumnSpan(mainFrame, 1);
                     Grid.SetRowSpan(mainFrame, 2);
                 }
-                VisualStateManager.GoToState(item, "Normal", true);
+                NavigationViewItemHelper.SetNavigationViewItemIndicator(item, true);
             }
         }
 
@@ -140,14 +171,96 @@ namespace ActViz
         }
         #endregion
 
-        private void NavigationView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
-        {
-
-        }
-
         private void NavigationViewList_ItemClick(object sender, ItemClickEventArgs e)
         {
+        }
 
+        private void mainNavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
+        {
+            if (args.SelectedItem == null) return;
+
+            NavigationViewItem selectedItem = args.SelectedItem as NavigationViewItem;
+            switch(selectedItem.Tag)
+            {
+                case "sites":
+                    mainFrame.Navigate(typeof(SiteSelectionPage));
+                    break;
+                case "datasets":
+                    mainFrame.Navigate(typeof(DatasetSelectionPage));
+                    break;
+                case "database":
+                    mainFrame.Navigate(typeof(DatabaseImportPage));
+                    break;
+                default:
+                    navViewCustomAction(sender, args);
+                    break;
+            }
+        }
+
+        public void PageBusy(string message)
+        {
+            LoadingMessage.Text = message;
+            LoadingControl.IsLoading = true;
+        }
+
+        public void PageReady()
+        {
+            LoadingControl.IsLoading = false;
+        }
+
+        public void NavigationViewLoadDefault()
+        {
+            // Before reload menu items for navigation view, deselect the selected item.
+            mainNavView.SelectedItem = null;
+            // Load default menu
+            mainNavView.MenuItems.Clear();
+            mainNavView.MenuItems.Add(navigationViewItemDatasets);
+            mainNavView.MenuItems.Add(navigationViewItemSites);
+            mainNavView.MenuItems.Add(navigationViewItemDatabase);
+            //_viewModel.MainNavMenu.Clear();
+            //_viewModel.MainNavMenu.Add(navigationViewItemDatasets);
+            //_viewModel.MainNavMenu.Add(navigationViewItemSites);
+            //_viewModel.MainNavMenu.Add(navigationViewItemDatabase);
+            mainNavView.SelectedItem = null;
+            // Clear Selected Flag
+            foreach(NavigationViewItem navigationViewItem in _viewModel.MainNavMenu)
+            {
+                navigationViewItem.IsSelected = false;
+                navigationViewItem.Content.GetType();
+                VisualStateManager.GoToState(navigationViewItem, "Normal", false);
+            }
+        }
+
+        public void NavigationViewLoadMenu(List<NavigationViewItem> navigationViewItems, Action<NavigationView, NavigationViewSelectionChangedEventArgs> action)
+        {
+            // Before reload menu items for navigation view, deselect the selected item.
+            mainNavView.SelectedItem = null;
+            // Add Custom Menu
+            // _viewModel.MainNavMenu.Clear();
+            mainNavView.MenuItems.Clear();
+            foreach (NavigationViewItem navigationViewItem in navigationViewItems)
+            {
+                mainNavView.MenuItems.Add(navigationViewItem);
+                //_viewModel.MainNavMenu.Add(navigationViewItem);
+            }
+            navViewCustomAction = action;
+        }
+
+        public void BackToEmpty()
+        {
+            // Custom Action to Dummy action
+            navViewCustomAction = (sender, args) => { };
+            // Load default navigation view menu
+            NavigationViewLoadDefault();
+            // Clear stack
+            mainFrame.BackStack.Clear();
+            // Go to empty page
+            mainFrame.Navigate(typeof(EmptyPage));
+        }
+
+        public void MainFrameNavigate(Type pageType, object parameter)
+        {
+            mainFrame.Navigate(pageType, parameter);
         }
     }
 }

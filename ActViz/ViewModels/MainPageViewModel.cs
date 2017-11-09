@@ -42,6 +42,5 @@ namespace ActViz.ViewModels
 
         public ObservableCollection<NavigationViewItem> MainNavMenu = new ObservableCollection<NavigationViewItem>();
         public ObservableCollection<NavigationViewItem> FooterMenu = new ObservableCollection<NavigationViewItem>();
-
     }
 }
