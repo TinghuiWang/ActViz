@@ -1,4 +1,5 @@
-﻿using ActViz.Models;
+﻿using ActViz.Helpers;
+using ActViz.Models;
 using ActViz.ViewModels;
 using Npgsql;
 using Renci.SshNet;
@@ -12,6 +13,7 @@ namespace ActViz.Services
 {
     public class CasasDatabaseService
     {
+        private Logger appLog = Logger.Instance;
         private SshClient sshClient;
         private ForwardedPortLocal sshTunnel;
         private NpgsqlConnection dbConnection;
@@ -69,8 +71,11 @@ namespace ActViz.Services
 
         public void Start()
         {
+            appLog.Debug(this.GetType().ToString(), "Start CASAS Database Service");
             if (IsSshEnabled)
             {
+                appLog.Debug(this.GetType().ToString(), 
+                    string.Format("SSH Enabled. Connect to SSH Server {0}, port {1:d}.", SshServer, SshPort));
                 // Setup SSH Port Forwarding
                 sshClient = new SshClient(SshServer, 22, SshUsername, SshPassword);
                 sshClient.Connect();
@@ -78,9 +83,11 @@ namespace ActViz.Services
                 sshClient.AddForwardedPort(sshTunnel);
                 sshTunnel.Start();
             }
+            appLog.Debug(this.GetType().ToString(),
+                    string.Format("Connect to Database Server {0}, port {1:d}.", DbServer, DbPort));
             // Connect to Database
             string sqlConnString = "Host=" + ((IsSshEnabled) ? "127.0.0.1" : DbServer) +
-                ";Username=" + DbUsername + ";Password=" + DbPassword + ";Database=smarthomedata";
+                ";Username=" + DbUsername + ";Password=" + DbPassword + ";Database=smarthomedata;";
             dbConnection = new NpgsqlConnection(sqlConnString);
             dbConnection.Open();
         }
@@ -101,6 +108,8 @@ namespace ActViz.Services
             {
                 cmd.Connection = dbConnection;
                 cmd.CommandText = "select tbname, description, active, created_on, timezone from testbed";
+                appLog.Debug(this.GetType().ToString(),
+                    string.Format("Executing SQL \"{0}\".", cmd.CommandText));
                 using (var reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
@@ -160,6 +169,8 @@ namespace ActViz.Services
             {
                 cmd.Connection = dbConnection;
                 cmd.CommandText = "select distinct sensor_type from detailed_all_sensors where tbname='" + testBedName + "';";
+                appLog.Debug(this.GetType().ToString(),
+                    string.Format("Executing SQL \"{0}\".", cmd.CommandText));
                 using (var reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
@@ -183,6 +194,8 @@ namespace ActViz.Services
             {
                 cmd.Connection = dbConnection;
                 cmd.CommandText = "select distinct sensor_type from detailed_all_sensors where tbname='" + testBedName + "';";
+                appLog.Debug(this.GetType().ToString(),
+                    string.Format("Executing SQL \"{0}\".", cmd.CommandText));
                 using (var reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
@@ -208,6 +221,8 @@ namespace ActViz.Services
             {
                 cmd.Connection = dbConnection;
                 cmd.CommandText = "select target, sensor_type from detailed_all_sensors where tbname='" + testBedName + "';";
+                appLog.Debug(this.GetType().ToString(),
+                    string.Format("Executing SQL \"{0}\".", cmd.CommandText));
                 using (var reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
@@ -260,8 +275,14 @@ namespace ActViz.Services
                 cmd.Connection = dbConnection;
                 cmd.CommandText = string.Format("select stamp, target, message, sensor_type from detailed_all_events where tbname='{0}' and stamp > '{1:u}' and stamp < '{2:u}';",
                     testBed.Name, startTime, stopTime);
+                // Need to increase command timeout.
+                cmd.CommandTimeout = 1200;
+                appLog.Debug(this.GetType().ToString(),
+                    string.Format("Executing SQL \"{0}\".", cmd.CommandText));
                 using (var reader = cmd.ExecuteReader())
                 {
+                    appLog.Debug(this.GetType().ToString(),
+                        string.Format("Data retrieved from database."));
                     while (reader.Read())
                     {
                         // Check binary events based on messages

@@ -7,6 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:ActViz.ViewModels"
     xmlns:converters="using:Microsoft.Toolkit.Uwp.UI.Converters"
+    xmlns:models="using:ActViz.Models"
     Loaded="Page_LoadedAsync"
     mc:Ignorable="d">
 
@@ -143,8 +144,15 @@
                                            Text="Associated Site:"
                                            Visibility="{x:Bind _viewModel.CreateNewSite, Converter={StaticResource BoolNegationToVisibility}, Mode=OneWay}"/>
                     <ComboBox Grid.Row="2" Grid.Column="1" Margin="5"
-                                          HorizontalAlignment="Stretch"
-                                          Visibility="{x:Bind _viewModel.CreateNewSite, Converter={StaticResource BoolNegationToVisibility}, Mode=OneWay}"/>
+                              HorizontalAlignment="Stretch"
+                              ItemsSource="{x:Bind _viewModel.existingSiteCollection}"
+                              Visibility="{x:Bind _viewModel.CreateNewSite, Converter={StaticResource BoolNegationToVisibility}, Mode=OneWay}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate x:DataType="models:Site">
+                                <TextBlock Text="{x:Bind Name}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
                     <CheckBox x:Name="chkboxCreateNewSite" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="4"
                                           Margin="5" Checked="chkboxCreateNewSite_Checked"
                                           IsChecked="{x:Bind _viewModel.CreateNewSite, Mode=TwoWay}"

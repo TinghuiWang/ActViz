@@ -1,0 +1,207 @@
+﻿<Page
+    x:Class="ActViz.Pages.SiteEditPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ActViz.Pages"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:models="using:ActViz.Models"
+    xmlns:viewmodels="using:ActViz.ViewModels"
+    Loaded="Page_Loaded"
+    Unloaded="Page_Unloaded"
+    mc:Ignorable="d">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
+        <Grid Margin="24,24,0,0" Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="textBlockTitle"
+                       Style="{StaticResource TitleTextBlockStyle}"
+                       FontSize="28"
+                       FontFamily="Comic Sans MS" FontWeight="Bold" FontStyle="Italic"
+                       VerticalAlignment="Center" />
+        </Grid>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200" />
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="200" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="1*" />
+            </Grid.RowDefinitions>
+            <Grid Grid.Column="2" Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+                <Button x:Name="btnSaveSite" Margin="5"
+                    Grid.Column="0" HorizontalAlignment="Stretch"
+                    Content="Save" Click="btnSaveSite_ClickAsync"
+                    IsEnabled="{x:Bind _viewModel.IsSiteChanged, Mode=OneWay}"></Button>
+                <Button x:Name="btnCloseSite" Margin="5"
+                Grid.Column="1" HorizontalAlignment="Stretch"
+                Content="Close" Click="btnCloseSite_ClickAsync"></Button>
+            </Grid>
+            <Button x:Name="btnNewSensor" Margin="5" 
+                Grid.Column="0" Grid.Row="1" HorizontalAlignment="Stretch" 
+                Click="btnNewSensor_ClickAsync">New Sensor</Button>
+            <ComboBox x:Name="sensorListTypeSelect" Margin="5"
+                      Grid.Column="0" Grid.Row="2" MinWidth="100"
+                      HorizontalAlignment="Stretch"
+                      ItemsSource="{x:Bind _viewModel.SensorCategories}"
+                      SelectedItem="{x:Bind _viewModel.SensorCategorySelected, Mode=TwoWay}"
+                      SelectionChanged="sensorListTypeSelect_SelectionChanged">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate x:DataType="models:SensorCategory">
+                        <StackPanel Orientation="Horizontal">
+                            <Rectangle Width="16" Height="16">
+                                <Rectangle.Fill>
+                                    <SolidColorBrush Color="{x:Bind Color, Mode=OneTime}" />
+                                </Rectangle.Fill>
+                            </Rectangle>
+                            <TextBlock Text="{x:Bind Name, Mode=OneTime}"></TextBlock>
+                        </StackPanel>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+            <ListView x:Name="sensorList" Margin="5"
+                  Grid.Row="3" Grid.Column="0"
+                  VerticalAlignment="Stretch"
+                  HorizontalAlignment="Stretch"
+                  SelectionMode="Single"
+                  ItemsSource="{x:Bind _viewModel.SensorInView}"
+                  SelectedItem="{x:Bind _viewModel.SensorSelected, Mode=TwoWay}"
+                  SelectionChanged="sensorList_SelectionChanged">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="viewmodels:SensorViewModel">
+                        <TextBlock Grid.Column="0" Text="{x:Bind Name, Mode=TwoWay}"></TextBlock>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <Image x:Name="floorplanImage" 
+               Grid.Column="1" Grid.Row="1" Grid.RowSpan="3"
+               SizeChanged="floorplanImage_SizeChanged" Margin="10"
+               Source="{x:Bind _viewModel.ImgFloorPlan}"></Image>
+            <Canvas x:Name="sensorCanvas" Margin="10"
+                Grid.Column="1" Grid.Row="1" Grid.RowSpan="3" 
+                SizeChanged="sensorCanvas_SizeChanged"></Canvas>
+            <controls:GridSplitter 
+                Grid.Column="1" Grid.Row="1" Grid.RowSpan="3"
+                ResizeBehavior="BasedOnAlignment"
+                ResizeDirection="Columns"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Stretch"
+                Background="Gray"  Foreground="White"
+                Width="11" FontSize="13">
+                <controls:GridSplitter.Element>
+                    <Grid>
+                        <TextBlock 
+                        HorizontalAlignment="Center"     
+                        IsHitTestVisible="False"
+                        VerticalAlignment="Center"  
+                        Text="&#xE784;"
+                        Foreground="Black" 
+                        FontFamily="Segoe MDL2 Assets">
+                        </TextBlock>
+                    </Grid>
+                </controls:GridSplitter.Element>
+            </controls:GridSplitter>
+            <controls:GridSplitter 
+                Grid.Column="2" Grid.Row="1" Grid.RowSpan="3"
+                ResizeBehavior="BasedOnAlignment"
+                ResizeDirection="Columns"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Stretch"
+                Background="Gray"  Foreground="White"
+                Width="11" FontSize="13">
+                <controls:GridSplitter.Element>
+                    <Grid>
+                        <TextBlock 
+                        HorizontalAlignment="Center"     
+                        IsHitTestVisible="False"
+                        VerticalAlignment="Center"  
+                        Text="&#xE784;"
+                        Foreground="Black" 
+                        FontFamily="Segoe MDL2 Assets">
+                        </TextBlock>
+                    </Grid>
+                </controls:GridSplitter.Element>
+            </controls:GridSplitter>
+            <Grid x:Name="infoPanel" 
+              Grid.Column="2" Grid.Row="1" Grid.RowSpan="3"
+              HorizontalAlignment="Stretch"
+              ScrollViewer.HorizontalScrollMode="Enabled"
+              Margin="20, 10, 10, 10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+                <Button x:Name="btnEditSensor" Margin="5"
+                    Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                    Content="Edit Sensor" HorizontalAlignment="Stretch"
+                    IsEnabled="{x:Bind _viewModel.IsSensorSelected, Mode=OneWay}"
+                    Click="btnEditSensor_ClickAsync"></Button>
+                <TextBlock Grid.Row="1" Grid.Column="0">Sensor Name:</TextBlock>
+                <TextBlock Grid.Row="1" Grid.Column="1" Margin="5, 0"
+                       Text="{x:Bind _viewModel.SensorSelected.Name, Mode=OneWay}"></TextBlock>
+                <TextBlock Grid.Row="2" Grid.Column="0">Sensor Type:</TextBlock>
+                <ListView Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Margin="5"
+                      ItemsSource="{x:Bind _viewModel.SensorSelected.SensorTypes, Mode=OneWay}"
+                      BorderBrush="LightGray" BorderThickness="1"
+                      SelectionMode="None"
+                      MinHeight="100">
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="models:SensorType">
+                            <StackPanel Orientation="Horizontal">
+                                <Rectangle Width="16" Height="16">
+                                    <Rectangle.Fill>
+                                        <SolidColorBrush Color="{x:Bind Color}" />
+                                    </Rectangle.Fill>
+                                </Rectangle>
+                                <TextBlock Text="{x:Bind Name}"></TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+                <TextBlock Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2">Sensor Description:</TextBlock>
+                <TextBox Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" IsReadOnly="True"
+                     Height="100" Margin="5" BorderBrush="LightGray"
+                     Text="{x:Bind _viewModel.SensorSelected.Description}"></TextBox>
+                <TextBlock Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2">Serial:</TextBlock>
+                <ListView Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2"
+                      Height="200" HorizontalAlignment="Stretch"
+                      Margin="5" BorderThickness="1" BorderBrush="LightGray"
+                      ItemsSource="{x:Bind _viewModel.SensorSelected.Serials, Mode=OneWay}"
+                      SelectionMode="None">
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                            <TextBlock Text="{x:Bind}" 
+                                   HorizontalAlignment="Stretch"></TextBlock>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Grid>
+        </Grid>
+    </Grid>
+</Page>

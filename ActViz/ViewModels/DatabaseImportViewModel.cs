@@ -66,6 +66,10 @@ namespace ActViz.ViewModels
         public async Task UpdateTestBedsAsync()
         {
             var testBedList = await Task.Factory.StartNew(() => { return casasDatabaseService.GetTestBedsInfo(); });
+            testBedList.Sort(delegate (TestBedViewModel x, TestBedViewModel y)
+            {
+                return x.Name.CompareTo(y.Name);
+            });
             foreach (TestBedViewModel testbed in testBedList)
             {
                 TestBedsList.Add(testbed);
@@ -145,6 +149,8 @@ namespace ActViz.ViewModels
             set { SetProperty(ref _datasetImportStopDateTimeSpanProxy, value); }
         }
 
+        public ObservableCollection<Site> existingSiteCollection = new ObservableCollection<Site>();
+
         private bool _createNewSite = false;
         public bool CreateNewSite
         {
@@ -197,7 +203,7 @@ namespace ActViz.ViewModels
             if (CreateNewSite) await CreateNewSiteFromTestbed();
             // TODO: Exception Handling
             StorageFolder folder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("datasets", CreationCollisionOption.OpenIfExists);
-            StorageFolder datasetFolder = await folder.CreateFolderAsync(DatasetName, CreationCollisionOption.FailIfExists);
+            StorageFolder datasetFolder = await folder.CreateFolderAsync(DatasetName, CreationCollisionOption.ReplaceExisting);
             Dataset dataset = new Dataset
             {
                 Name = DatasetName,
@@ -208,15 +214,15 @@ namespace ActViz.ViewModels
             };
             await dataset.WriteMetadataToFolder();
             var eventTuple = casasDatabaseService.GetSensorEvents(TestBedSelected, DatasetImportStartDate, DatasetImportStopDate);
-            StorageFile eventFile = await dataset.Folder.CreateFileAsync("events.csv");
+            StorageFile eventFile = await dataset.Folder.CreateFileAsync("events.csv", CreationCollisionOption.ReplaceExisting);
             await FileIO.WriteLinesAsync(eventFile, eventTuple.Item1);
-            eventFile = await dataset.Folder.CreateFileAsync("temperature.csv");
+            eventFile = await dataset.Folder.CreateFileAsync("temperature.csv", CreationCollisionOption.ReplaceExisting);
             await FileIO.WriteLinesAsync(eventFile, eventTuple.Item2);
-            eventFile = await dataset.Folder.CreateFileAsync("light.csv");
+            eventFile = await dataset.Folder.CreateFileAsync("light.csv", CreationCollisionOption.ReplaceExisting);
             await FileIO.WriteLinesAsync(eventFile, eventTuple.Item3);
-            eventFile = await dataset.Folder.CreateFileAsync("radio.csv");
+            eventFile = await dataset.Folder.CreateFileAsync("radio.csv", CreationCollisionOption.ReplaceExisting);
             await FileIO.WriteLinesAsync(eventFile, eventTuple.Item4);
-            eventFile = await dataset.Folder.CreateFileAsync("other.csv");
+            eventFile = await dataset.Folder.CreateFileAsync("other.csv", CreationCollisionOption.ReplaceExisting);
             await FileIO.WriteLinesAsync(eventFile, eventTuple.Item5);
         }
 
@@ -224,7 +230,7 @@ namespace ActViz.ViewModels
         {
             // TODO: Exception Handling
             StorageFolder folder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("sites", CreationCollisionOption.OpenIfExists);
-            StorageFolder siteFolder = await folder.CreateFolderAsync(SiteName, CreationCollisionOption.FailIfExists);
+            StorageFolder siteFolder = await folder.CreateFolderAsync(SiteName, CreationCollisionOption.ReplaceExisting);
             Site site = new Site
             {
                 Folder = siteFolder,
@@ -232,8 +238,18 @@ namespace ActViz.ViewModels
                 Floorplan = Path.GetFileName(SiteFloorplan),
                 Sensors = casasDatabaseService.GetSensors(TestBedSelected)
             };
-            await SiteFloorplanFile.CopyAsync(siteFolder);
+            await SiteFloorplanFile.CopyAsync(siteFolder, SiteFloorplanFile.Name, NameCollisionOption.ReplaceExisting);
             await site.WriteToFolderAsync();
+        }
+
+        public async Task LoadExsitingSitesAsync()
+        {
+            existingSiteCollection.Clear();
+            List<Site> siteList = await LocalMetadataService.LoadSitesAsync();
+            foreach(Site site in siteList)
+            {
+                existingSiteCollection.Add(site);
+            }
         }
     }
 }

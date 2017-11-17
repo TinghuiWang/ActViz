@@ -96,8 +96,14 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\DateSlider.cs" />
+    <Compile Include="Dialogs\AddSensorDialog.xaml.cs">
+      <DependentUpon>AddSensorDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\DatabaseConnectionDialog.xaml.cs">
       <DependentUpon>DatabaseConnectionDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\EditSensorDialog.xaml.cs">
+      <DependentUpon>EditSensorDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Helpers\Logger.cs" />
     <Compile Include="Helpers\NavigationViewItemHelper.cs" />
@@ -130,10 +136,14 @@
     <Compile Include="Pages\EmptyPage.xaml.cs">
       <DependentUpon>EmptyPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\SiteEditPage.xaml.cs">
+      <DependentUpon>SiteEditPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\SiteSelectionPage.xaml.cs">
       <DependentUpon>SiteSelectionPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\AppSettingsService.cs" />
     <Compile Include="Services\CasasDatabaseService.cs" />
     <Compile Include="Services\LocalMetadataService.cs" />
     <Compile Include="ViewModels\DatabaseConnectionViewModel.cs" />
@@ -144,6 +154,8 @@
     <Compile Include="ViewModels\EventOffset.cs" />
     <Compile Include="ViewModels\EventViewFilter.cs" />
     <Compile Include="ViewModels\MainPageViewModel.cs" />
+    <Compile Include="ViewModels\SensorViewModel.cs" />
+    <Compile Include="ViewModels\SiteEditViewModel.cs" />
     <Compile Include="ViewModels\SiteSelectionViewModel.cs" />
     <Compile Include="ViewModels\TestBedViewModel.cs" />
   </ItemGroup>
@@ -168,7 +180,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Dialogs\AddSensorDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Dialogs\DatabaseConnectionDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\EditSensorDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -197,6 +217,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\EmptyPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\SiteEditPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

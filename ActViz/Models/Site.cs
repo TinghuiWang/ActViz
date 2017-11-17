@@ -129,7 +129,7 @@ namespace ActViz.Models
                 sensor = new Sensor
                 {
                     Name = name,
-                    Serial = new List<string>(),
+                    Serials = new List<string>(),
                     LocX = 0,
                     LocY = 0,
                     SizeX = 0.03,

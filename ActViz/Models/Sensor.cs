@@ -31,7 +31,7 @@ namespace ActViz.Models
         public string Description { get; set; }
 
         [JsonProperty("serial")]
-        public List<string> Serial { get; set; }
+        public List<string> Serials { get; set; }
 
         [JsonProperty("tag")]
         public string Tag { get; set; }

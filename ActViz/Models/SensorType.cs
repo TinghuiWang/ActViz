@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ActViz.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -8,7 +9,7 @@ using Windows.UI;
 
 namespace ActViz.Models
 {
-    class SensorType
+    public class SensorType
     {
         private static readonly Dictionary<string, Color> _sensorCategoryColorDict = new Dictionary<string, Color>()
         {
@@ -204,6 +205,14 @@ namespace ActViz.Models
         private static readonly SensorType _generalOther = new SensorType("Other", "Other", Colors.White);
         public static SensorType GeneralOther { get { return _generalOther; } }
 
+        internal static SensorType AddSensorType(string type)
+        {
+            SensorType newType = new SensorType(type, "Other", _sensorCategoryColorDict["Other"]);
+            _allSensorTypes.Add(newType);
+            _dictSensorTypeLookup.Add(newType.Name, newType);
+            return newType;
+        }
+
         public static SensorType GuessSensorTypeFromName(string sensorName)
         {
             switch (sensorName[0])
@@ -223,6 +232,25 @@ namespace ActViz.Models
                 default:
                     return _generalOther;
             }
+        }
+
+        public static Color GetBestColorForSensor(SensorViewModel sensorViewModel, string priorityCategory = null)
+        {
+            if (priorityCategory != null && sensorViewModel.SensorCategories.Contains(priorityCategory))
+            {
+                return _sensorCategoryColorDict[priorityCategory];
+            }
+
+            // Motion, Item, Door, Light, Temperature, Power
+            List<string> categoryDefaultPriority = new List<string> { "Motion", "Item", "Door", "Temperature", "Light", "LightSwitch", "Battery", "Radio", "Other" };
+            foreach(string category in categoryDefaultPriority)
+            {
+                if(sensorViewModel.SensorCategories.Contains(category))
+                {
+                    return _sensorCategoryColorDict[category];
+                }
+            }
+            return _sensorCategoryColorDict["Other"];
         }
 
         public static Color GetColorFromSensorType(string type)
@@ -256,12 +284,16 @@ namespace ActViz.Models
             {
                 InitAllSensorTypes();
             }
-            SensorType sensorType = null;
-            if (_dictSensorTypeLookup.TryGetValue(type, out sensorType))
+            if (_dictSensorTypeLookup.TryGetValue(type, out SensorType sensorType))
             {
                 return sensorType;
             }
             return null;
+        }
+
+        public static SensorCategory GetSensorCategory(string category)
+        {
+            return _sensorCategoryCollection.FirstOrDefault(x => x.Name == category);
         }
     }
 

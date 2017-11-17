@@ -83,6 +83,7 @@ namespace ActViz.Pages
         private async void btnImportFromTestbed_ClickAsync(object sender, RoutedEventArgs e)
         {
             PageBusy("Loading Selected TestBed from database ...");
+            await _viewModel.LoadExsitingSitesAsync();
             await _viewModel.LoadSensorsFromDbAsync();
             _viewModel.DatasetName = _viewModel.TestBedSelected.Name;
             _viewModel.SiteName = _viewModel.TestBedSelected.Name;
@@ -138,6 +139,8 @@ namespace ActViz.Pages
             {
                 await _viewModel.ImportSelectedDatasetAsync();
                 _viewModel.InImportMode = false;
+                MessageDialog dlg = new MessageDialog("Dataset " + _viewModel.DatasetName + " imported successfully");
+                await dlg.ShowAsync();
             }
             catch (Exception except)
             {

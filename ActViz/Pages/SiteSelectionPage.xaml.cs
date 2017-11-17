@@ -129,6 +129,8 @@ namespace ActViz.Pages
 
         private void BtnEditSite_Click(object sender, RoutedEventArgs e)
         {
+            if (_viewModel.SiteSelected != null)
+                ((Window.Current.Content as Frame).Content as MainPage).MainFrameNavigate(typeof(SiteEditPage), _viewModel.SiteSelected);
 
         }
     }
