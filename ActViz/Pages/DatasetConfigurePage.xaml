@@ -5,9 +5,160 @@
     xmlns:local="using:ActViz.Pages"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewmodels="using:ActViz.ViewModels"
+    xmlns:converters="using:Microsoft.Toolkit.Uwp.UI.Converters"
     mc:Ignorable="d">
 
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" TrueValue="Visible" FalseValue="Collapsed"/>
+    </Page.Resources>
+    
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <TextBlock x:Name="txtDatasetTitle" Grid.Column="0" Grid.Row="0"
+                   Text="{x:Bind _viewModel.Name, Mode=OneWay}" Margin="5,10,0,5" 
+                   FontFamily="Comic Sans MS" FontWeight="Bold" FontStyle="Italic" FontSize="20" 
+                   Foreground="Black"/>
+        <ScrollViewer Grid.Row="1" 
+                      HorizontalScrollMode="Enabled" VerticalScrollMode="Disabled">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch">
+                <Border BorderThickness="1" Padding="5" Margin="10">
+                    <Border.BorderBrush>
+                        <SolidColorBrush Color="Gray" Opacity="0.3"></SolidColorBrush>
+                    </Border.BorderBrush>
+                    <Grid Width="300" VerticalAlignment="Stretch">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                            <RowDefinition Height="*"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Text="General" Margin="5,10" FontFamily="Comic Sans MS" FontWeight="Bold" FontStyle="Italic"></TextBlock>
+                        
+                    </Grid>
+                </Border>
+                <Border BorderThickness="1" Padding="5" Margin="10">
+                    <Border.BorderBrush>
+                        <SolidColorBrush Color="Gray" Opacity="0.3"></SolidColorBrush>
+                    </Border.BorderBrush>
+                    <Grid Width="300" VerticalAlignment="Stretch">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                            <RowDefinition Height="*"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Text="Activities" Margin="5,10" FontFamily="Comic Sans MS" FontWeight="Bold" FontStyle="Italic"></TextBlock>
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="120"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                <ColumnDefinition Width="30"></ColumnDefinition>
+                                <ColumnDefinition Width="30"></ColumnDefinition>
+                                <ColumnDefinition Width="30"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="*"></RowDefinition>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <ListView Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5"
+                                      x:Name="ActivityListView"  Margin="10"
+                                      SelectionMode="Single"
+                                      ItemsSource="{x:Bind _viewModel.ActivityCollectionView}"
+                                      SelectedItem="{x:Bind _viewModel.ActivitySelected, Mode=TwoWay}"
+                                      BorderBrush="LightGray" BorderThickness="1">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate x:DataType="viewmodels:ActivityViewModel">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Rectangle Width="16" Height="16" Stroke="Black" StrokeThickness="1">
+                                                <Rectangle.Fill>
+                                                    <SolidColorBrush Color="{x:Bind Color, Mode=OneWay}" />
+                                                </Rectangle.Fill>
+                                            </Rectangle>
+                                            <TextBlock Text="{x:Bind Name, Mode=OneWay}" Margin="10, 0"></TextBlock>
+                                            <TextBlock Text=" (Noise)" Foreground="Goldenrod" Visibility="{x:Bind IsNoise, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"></TextBlock>
+                                            <TextBlock Text=" (Ignored)" Foreground="DimGray" Visibility="{x:Bind IsIgnored, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"></TextBlock>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                            <Button x:Name="btnAddActivity" FontFamily="Segoe MDL2 Assets" Content="&#xE710;" FontSize="10"
+                                    Grid.Row="0" Grid.Column="2" 
+                                    Width="30" Height="30" Background="Transparent" 
+                                    Click="btnAddActivity_ClickAsync"></Button>
+                            <Button x:Name="btnModifyActivity" FontFamily="Segoe MDL2 Assets" Content="&#xE713;" FontSize="10"
+                                    Grid.Row="0" Grid.Column="3" 
+                                    Width="30" Height="30" Background="Transparent" 
+                                    Click="btnModifyActivity_ClickAsync" IsEnabled="{x:Bind _viewModel.IsActivitySelected, Mode=OneWay}"></Button>
+                            <Button x:Name="btnDeleteActivity" FontFamily="Segoe MDL2 Assets" Content="&#xE74D;" FontSize="10"
+                                    Grid.Row="0" Grid.Column="4" 
+                                    Width="30" Height="30" Background="Transparent" 
+                                    Click="btnDeleteActivity_ClickAsync" IsEnabled="{x:Bind _viewModel.IsActivitySelected, Mode=OneWay}"></Button>
+                        </Grid>
+                    </Grid>
+                </Border>
+                <Border BorderThickness="1" Padding="5" Margin="10">
+                    <Border.BorderBrush>
+                        <SolidColorBrush Color="Gray" Opacity="0.3"></SolidColorBrush>
+                    </Border.BorderBrush>
+                    <Grid Width="300" VerticalAlignment="Stretch">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                            <RowDefinition Height="*"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Text="Residents" Margin="5,10" FontFamily="Comic Sans MS" FontWeight="Bold" FontStyle="Italic"></TextBlock>
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="120"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                <ColumnDefinition Width="30"></ColumnDefinition>
+                                <ColumnDefinition Width="30"></ColumnDefinition>
+                                <ColumnDefinition Width="30"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="*"></RowDefinition>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <ListView Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5"
+                                      x:Name="ResidentListView"  Margin="10"
+                                      SelectionMode="Single"
+                                      ItemsSource="{x:Bind _viewModel.ResidentCollectionView}"
+                                      SelectedItem="{x:Bind _viewModel.ResidentSelected, Mode=TwoWay}"
+                                      BorderBrush="LightGray" BorderThickness="1">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate x:DataType="viewmodels:ResidentViewModel">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Rectangle Width="16" Height="16" Stroke="Black" StrokeThickness="1">
+                                                <Rectangle.Fill>
+                                                    <SolidColorBrush Color="{x:Bind Color, Mode=OneWay}" />
+                                                </Rectangle.Fill>
+                                            </Rectangle>
+                                            <TextBlock Text="{x:Bind Name, Mode=OneWay}" Margin="10, 0"></TextBlock>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                            <Button x:Name="btnAddResident" FontFamily="Segoe MDL2 Assets" Content="&#xE710;" FontSize="10"
+                                    Grid.Row="0" Grid.Column="2" 
+                                    Width="30" Height="30" Background="Transparent" 
+                                    Click="btnAddResident_ClickAsync"></Button>
+                            <Button x:Name="btnModifyResident" FontFamily="Segoe MDL2 Assets" Content="&#xE713;" FontSize="10"
+                                    Grid.Row="0" Grid.Column="3" 
+                                    Width="30" Height="30" Background="Transparent" 
+                                    Click="btnModifyResident_ClickAsync" IsEnabled="{x:Bind _viewModel.IsResidentSelected, Mode=OneWay}"></Button>
+                            <Button x:Name="btnDeleteResident" FontFamily="Segoe MDL2 Assets" Content="&#xE74D;" FontSize="10"
+                                    Grid.Row="0" Grid.Column="4" 
+                                    Width="30" Height="30" Background="Transparent" 
+                                    Click="btnDeleteResident_ClickAsync" IsEnabled="{x:Bind _viewModel.IsResidentSelected, Mode=OneWay}"></Button>
+                        </Grid>
+                    </Grid>
+                </Border>
 
+            </StackPanel>            
+        </ScrollViewer>
     </Grid>
 </Page>

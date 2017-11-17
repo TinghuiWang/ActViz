@@ -56,7 +56,7 @@ namespace ActViz.Models
         [JsonIgnore]
         public bool IsModified { get { return _isModified; } set { _isModified = value; } }
 
-        public async Task WriteMetadataToFolder()
+        public async Task WriteMetadataToFolderAsync()
         {
             StorageFile datasetMetaFile = await Folder.CreateFileAsync("dataset.json", CreationCollisionOption.ReplaceExisting);
             await FileIO.WriteTextAsync(datasetMetaFile, JsonConvert.SerializeObject(this, Formatting.Indented));

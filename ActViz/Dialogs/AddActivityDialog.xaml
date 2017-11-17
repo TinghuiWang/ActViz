@@ -1,0 +1,66 @@
+﻿<ContentDialog
+    x:Class="ActViz.Dialogs.AddActivityDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ActViz.Dialogs"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:localconverters="using:ActViz.Converters"
+    mc:Ignorable="d"
+    Title="Add Activity"
+    PrimaryButtonText="Add"
+    SecondaryButtonText="Cancel"
+    PrimaryButtonClick="AddActivityDialog_AddClick"
+    SecondaryButtonClick="AddActivityDialog_CancelClick">
+
+    <ContentDialog.Resources>
+        <localconverters:ColorToNameStringConverter x:Key="ColorToNameStringConverter" />
+    </ContentDialog.Resources>
+    
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Column="0" Grid.Row="0" 
+                   Margin="0,5,10,5" VerticalAlignment="Center">
+            Activity Name:
+        </TextBlock>
+        <TextBox x:Name="txtNameAddSensor" 
+                 Grid.Column="1" Grid.Row="0" Margin="0,5" 
+                 HorizontalAlignment="Stretch" IsReadOnly="False" 
+                 Text="{x:Bind _activityViewModel.Name, Mode=TwoWay}"></TextBox>
+        <TextBlock Grid.Column="0" Grid.Row="1" Margin="0,5,10,5" VerticalAlignment="Center">Activity Color:</TextBlock>
+        <ComboBox x:Name="comboActivityColor"                          
+                  Grid.Column="1"
+                  Grid.Row="1" 
+                  Margin="0,5"
+                  HorizontalAlignment="Stretch"
+                  ItemsSource="{x:Bind ColorCollection}"
+                  SelectedItem="{x:Bind _activityViewModel.Color, Mode=TwoWay}">
+            <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="Color">
+                    <StackPanel Orientation="Horizontal">
+                        <Rectangle Width="16" Height="16" Stroke="Black" StrokeThickness="1">
+                            <Rectangle.Fill>
+                                <SolidColorBrush Color="{x:Bind}" />
+                            </Rectangle.Fill>
+                        </Rectangle>
+                        <TextBlock Text="{x:Bind Converter={StaticResource ColorToNameStringConverter}}" Margin="10, 0"></TextBlock>
+                    </StackPanel>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+        <TextBlock Grid.Column="0" Grid.Row="3" Margin="0,5,10,5" VerticalAlignment="Center" Text="Is Noise"></TextBlock>
+        <ToggleSwitch Grid.Column="1" Grid.Row="3" IsOn="{x:Bind _activityViewModel.IsNoise, Mode=TwoWay}"></ToggleSwitch>
+        <TextBlock Grid.Column="0" Grid.Row="4" Margin="0,5,10,5" VerticalAlignment="Center" Text="Ignored"></TextBlock>
+        <ToggleSwitch Grid.Column="1" Grid.Row="4" IsOn="{x:Bind _activityViewModel.IsIgnored, Mode=TwoWay}"></ToggleSwitch>
+    </Grid>
+</ContentDialog>

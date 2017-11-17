@@ -1,0 +1,63 @@
+﻿<ContentDialog
+    x:Class="ActViz.Dialogs.EditResidentDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ActViz.Dialogs"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:localconverters="using:ActViz.Converters"
+    mc:Ignorable="d"
+    Title="Edit Resident"
+    PrimaryButtonText="Save"
+    SecondaryButtonText="Cancel"
+    PrimaryButtonClick="EditResidentDialog_SaveClick"
+    SecondaryButtonClick="EditResidentDialog_CancelClick"
+    IsPrimaryButtonEnabled="False"
+    IsSecondaryButtonEnabled="True">
+    
+    <ContentDialog.Resources>
+        <localconverters:ColorToNameStringConverter x:Key="ColorToNameStringConverter" />
+    </ContentDialog.Resources>
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Column="0" Grid.Row="1" Margin="0,5,10,5" VerticalAlignment="Center">Resident Alias:</TextBlock>
+        <TextBox x:Name="txtResidentName" 
+                 Grid.Column="1" Grid.Row="1" Margin="0,5" 
+                 HorizontalAlignment="Stretch" IsReadOnly="False" 
+                 Text="{x:Bind _viewModel.Name, Mode=OneTime}"
+                 TextChanged="txtResidentName_TextChanged"></TextBox>
+        <TextBlock Grid.Column="0" Grid.Row="2" Margin="0,5,10,5" VerticalAlignment="Center">Resident Color:</TextBlock>
+        <ComboBox x:Name="comboResidentColor"
+                  Grid.Column="1"
+                  Grid.Row="2" 
+                  Margin="0,5"
+                  HorizontalAlignment="Stretch"
+                  ItemsSource="{x:Bind ColorCollection}"
+                  SelectedItem="{x:Bind _viewModel.Color, Mode=OneTime}"
+                  SelectionChanged="comboResidentColor_SelectionChanged">
+            <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="Color">
+                    <StackPanel Orientation="Horizontal">
+                        <Rectangle Width="16" Height="16" Stroke="Black" StrokeThickness="1">
+                            <Rectangle.Fill>
+                                <SolidColorBrush Color="{x:Bind}" />
+                            </Rectangle.Fill>
+                        </Rectangle>
+                        <TextBlock Text="{x:Bind Converter={StaticResource ColorToNameStringConverter}}" Margin="10, 0"></TextBlock>
+                    </StackPanel>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+    </Grid>
+</ContentDialog>
