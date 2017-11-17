@@ -212,7 +212,7 @@ namespace ActViz.ViewModels
                 Activities = new List<Activity>(),
                 Folder = datasetFolder
             };
-            await dataset.WriteMetadataToFolder();
+            await dataset.WriteMetadataToFolderAsync();
             var eventTuple = casasDatabaseService.GetSensorEvents(TestBedSelected, DatasetImportStartDate, DatasetImportStopDate);
             StorageFile eventFile = await dataset.Folder.CreateFileAsync("events.csv", CreationCollisionOption.ReplaceExisting);
             await FileIO.WriteLinesAsync(eventFile, eventTuple.Item1);
