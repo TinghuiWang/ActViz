@@ -381,8 +381,13 @@ namespace ActViz.ViewModels
                 if (tempEvent.Resident != ResidentViewModel.NullResident)
                 {
                     if (!sensorCheckDictionary[tempEvent.Resident].Contains(tempEvent.Sensor))
-                        if (tempEvent.SensorState != "OFF")
+                    {
+                        if (!SensorStatusStopToken.Contains(tempEvent.SensorState))
+                        {
                             pastStepsOfResidents[tempEvent.Resident].Add(tempEvent);
+                            //sensorCheckDictionary[tempEvent.Resident].Add(tempEvent.Sensor);
+                        }
+                    }
                 }
             }
             return pastStepsOfResidents;
