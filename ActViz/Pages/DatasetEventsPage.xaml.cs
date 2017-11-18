@@ -370,29 +370,31 @@ namespace ActViz.Pages
                 {
                     Sensor startSensor = entry.Value[i + 1].Sensor;
                     Sensor stopSensor = entry.Value[i].Sensor;
+                    if (startSensor.LocX == stopSensor.LocX && startSensor.LocY == stopSensor.LocY) continue;
                     Line line = new Line();
                     if (startSensor.LocX > stopSensor.LocX)
                     {
                         line.X1 = (sensorCanvas.ActualWidth - totalX) / 2 + (startSensor.LocX) * totalX;
-                        line.X2 = (sensorCanvas.ActualWidth - totalX) / 2 + (stopSensor.LocX + sensorIconWidth) * totalX;
+                        line.X2 = (sensorCanvas.ActualWidth - totalX) / 2 + (stopSensor.LocX) * totalX + sensorIconWidth;
                     }
                     else
                     {
-                        line.X1 = (sensorCanvas.ActualWidth - totalX) / 2 + (startSensor.LocX + sensorIconWidth) * totalX;
+                        line.X1 = (sensorCanvas.ActualWidth - totalX) / 2 + (startSensor.LocX) * totalX + sensorIconWidth;
                         line.X2 = (sensorCanvas.ActualWidth - totalX) / 2 + (stopSensor.LocX) * totalX;
                     }
                     if (startSensor.LocY > stopSensor.LocY)
                     {
                         line.Y1 = (sensorCanvas.ActualHeight - totalY) / 2 + (startSensor.LocY) * totalY;
-                        line.Y2 = (sensorCanvas.ActualHeight - totalY) / 2 + (stopSensor.LocY + sensorIconHeight) * totalY;
+                        line.Y2 = (sensorCanvas.ActualHeight - totalY) / 2 + (stopSensor.LocY) * totalY + sensorIconHeight;
                     }
                     else
                     {
-                        line.Y1 = (sensorCanvas.ActualHeight - totalY) / 2 + (startSensor.LocY + sensorIconHeight) * totalY;
+                        line.Y1 = (sensorCanvas.ActualHeight - totalY) / 2 + (startSensor.LocY) * totalY + sensorIconHeight;
                         line.Y2 = (sensorCanvas.ActualHeight - totalY) / 2 + (stopSensor.LocY) * totalY;
                     }
                     double opacity = (i < 10 && i >= 0) ? 1 - 0.1 * i : 0;
                     line.Stroke = new SolidColorBrush(entry.Key.Color);
+                    line.StrokeThickness = 2;
                     line.Opacity = opacity;
                     line.StrokeEndLineCap = PenLineCap.Triangle;
                     sensorCanvas.Children.Add(line);
