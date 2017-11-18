@@ -170,6 +170,7 @@
     <Compile Include="ViewModels\EventViewFilter.cs" />
     <Compile Include="ViewModels\MainPageViewModel.cs" />
     <Compile Include="ViewModels\ResidentViewModel.cs" />
+    <Compile Include="ViewModels\SensorEventViewModel.cs" />
     <Compile Include="ViewModels\SensorViewModel.cs" />
     <Compile Include="ViewModels\SiteEditViewModel.cs" />
     <Compile Include="ViewModels\SiteSelectionViewModel.cs" />

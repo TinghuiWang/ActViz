@@ -236,7 +236,8 @@ namespace ActViz.ViewModels
                 Folder = siteFolder,
                 Name = SiteName,
                 Floorplan = Path.GetFileName(SiteFloorplan),
-                Sensors = casasDatabaseService.GetSensors(TestBedSelected)
+                Sensors = casasDatabaseService.GetSensors(TestBedSelected),
+                TimeZone = TestBedSelected.TimeZone
             };
             await SiteFloorplanFile.CopyAsync(siteFolder, SiteFloorplanFile.Name, NameCollisionOption.ReplaceExisting);
             await site.WriteToFolderAsync();

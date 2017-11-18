@@ -555,7 +555,7 @@ namespace ActViz.Pages
 
         private async void btnCloseSite_ClickAsync(object sender, RoutedEventArgs e)
         {
-            ClosePageAsync();
+            await ClosePageAsync();
         }
 
         private async void btnSaveSite_ClickAsync(object sender, RoutedEventArgs e)

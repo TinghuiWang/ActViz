@@ -288,8 +288,10 @@ namespace ActViz.Services
                         // Check binary events based on messages
                         string message = reader.IsDBNull(2) ? "" : reader.GetString(2);
                         string sensorTypeString = reader.IsDBNull(3) ? "" : reader.GetString(3);
-                        string eventString = String.Format("{0:MM/dd/yyyy,HH:mm:ss,}{1},{2},,,{3}",
-                                TimeZoneInfo.ConvertTime(reader.IsDBNull(0) ? DateTime.MinValue : reader.GetDateTime(0), testBed.TimeZone),
+                        DateTime utcDateTime = reader.IsDBNull(0) ? DateTime.MinValue.ToUniversalTime() : reader.GetDateTime(0);
+                        DateTimeOffset utcDateTimeOffset = new DateTimeOffset(DateTime.SpecifyKind(utcDateTime, DateTimeKind.Utc));
+                        string eventString = String.Format("{0:MM/dd/yyyy HH:mm:ss zzz},{1},{2},,,{3}",
+                                TimeZoneInfo.ConvertTime(utcDateTimeOffset, testBed.TimeZone),
                                 reader.IsDBNull(1) ? "" : reader.GetString(1),
                                 message,
                                 sensorTypeString

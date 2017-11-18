@@ -8,8 +8,15 @@
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:models="using:ActViz.Models"
     xmlns:localcontrols="using:ActViz.Controls"
+    xmlns:converters="using:Microsoft.Toolkit.Uwp.UI.Converters"
+    xmlns:viewmodels="using:ActViz.ViewModels"
+    Loaded="Page_LoadedAsync"
     mc:Ignorable="d">
 
+    <Page.Resources>
+        <converters:FormatStringConverter x:Key="DateTimeToStringConverter" />
+    </Page.Resources>
+    
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="400" />
@@ -69,7 +76,7 @@
                 </Style>
             </ListView.ItemContainerStyle>
             <ListView.ItemTemplate>
-                <DataTemplate x:DataType="models:SensorEvent">
+                <DataTemplate x:DataType="viewmodels:SensorEventViewModel">
                     <Grid Margin="0, 5">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="150"/>
@@ -79,13 +86,20 @@
                             <ColumnDefinition Width="50"/>
                             <ColumnDefinition Width="200"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" FontFamily="Consolas" Margin="0,0,10,0" Text="{x:Bind TimeTag, Converter={StaticResource DateTimeToString}, Mode=OneWay}"/>
+                        <TextBlock Grid.Column="0" FontFamily="Consolas" Margin="0,0,10,0" Text="{x:Bind TimeTag, Converter={StaticResource DateTimeToStringConverter}, Mode=OneWay, ConverterParameter='yyyy MM/dd H:mm:ss'}"/>
                         <TextBlock Grid.Column="1" FontFamily="Consolas" Margin="0,0,10,0" Text="{x:Bind Sensor.Name, Mode=OneWay}" FontWeight="Bold"/>
                         <TextBlock Grid.Column="2" FontFamily="Consolas" Margin="0,0,10,0" Text="{x:Bind SensorState, Mode=OneWay}"/>
-                        <TextBlock Grid.Column="3" FontFamily="Consolas" Margin="0,0,10,0" Text="{x:Bind Resident.Name, Mode=OneWay}"
-                                   Foreground="{x:Bind Resident.Color, Converter={StaticResource ColorStringToBrush}, Mode=OneWay}"/>
-                        <TextBlock Grid.Column="4" FontFamily="Consolas" Margin="0,0,10,0" Text="{x:Bind Activity.Name, Mode=OneWay}"
-                                   Foreground="{x:Bind Activity.Color, Converter={StaticResource ColorStringToBrush}, Mode=OneWay}"/>
+                        <TextBlock Grid.Column="3" FontFamily="Consolas" Margin="0,0,10,0" Text="{x:Bind Resident.Name, Mode=OneWay}">
+                            <TextBlock.Foreground>
+                                <SolidColorBrush Color="{x:Bind Resident.Color, Mode=OneWay}" />
+                            </TextBlock.Foreground>
+                        </TextBlock>
+                        <TextBlock Grid.Column="4" FontFamily="Consolas" Margin="0,0,10,0" 
+                                   Text="{x:Bind Activity.Name, Mode=OneWay}">
+                            <TextBlock.Foreground>
+                                <SolidColorBrush Color="{x:Bind Activity.Color, Mode=OneWay}" />
+                            </TextBlock.Foreground>
+                        </TextBlock>
                         <TextBlock Grid.Column="5" FontFamily="Consolas" Margin="0,0,10,0" Text="{x:Bind Comments, Mode=OneWay}"/>
                     </Grid>
                 </DataTemplate>
@@ -109,19 +123,36 @@
                 x:Name="EventDatePicker" 
                 VerticalAlignment="Center" 
                 Margin="20,0,0,0" 
-                DateChanged="EventDatePicker_DateChanged" Width="140"
+                DateChanged="EventDatePicker_DateChangedAsync" Width="140"
+                Date="{x:Bind _viewModel.CurrentDate, Mode=OneWay}"
                 MinDate="{x:Bind _viewModel.FirstEventDate, Mode=OneWay}"
                 MaxDate="{x:Bind _viewModel.LastEventDate, Mode=OneWay}"/>
-            <Button Grid.Column="1" x:Name="btnPrevWeek" FontFamily="Segoe MDL2 Assets" Content="&#xE892;" Margin="5" VerticalAlignment="Center" ToolTipService.ToolTip="Previous Week" Click="btnPrevWeek_Click"></Button>
-            <Button Grid.Column="2" x:Name="btnPrevDay" FontFamily="Segoe MDL2 Assets" Content="&#xEB9E;" Margin="5" VerticalAlignment="Center" ToolTipService.ToolTip="Yesterday" Click="btnPrevDay_Click"></Button>
+            <Button Grid.Column="1" x:Name="btnPrevWeek" 
+                    FontFamily="Segoe MDL2 Assets" Content="&#xE892;" 
+                    Margin="5" VerticalAlignment="Center" 
+                    ToolTipService.ToolTip="Previous Week" 
+                    Click="btnPrevWeek_ClickAsync"></Button>
+            <Button Grid.Column="2" x:Name="btnPrevDay" 
+                    FontFamily="Segoe MDL2 Assets" Content="&#xEB9E;" 
+                    Margin="5" VerticalAlignment="Center"
+                    ToolTipService.ToolTip="Yesterday" 
+                    Click="btnPrevDay_ClickAsync"></Button>
             <localcontrols:DateSlider Grid.Column="3" x:Name="DateSlider" VerticalAlignment="Center" ValueChangeCompleted="DateSlider_ValueChangeCompleted"></localcontrols:DateSlider>
             <StackPanel Orientation="Horizontal" Grid.Column="4" VerticalAlignment="Center">
                 <TextBlock Text="{Binding ElementName=DateSlider, Path=Value}" Width="30" TextAlignment="Center"></TextBlock>
                 <TextBlock Text="/"></TextBlock>
                 <TextBlock Text="{Binding ElementName=DateSlider, Path=Maximum}" Width="30" TextAlignment="Center"></TextBlock>
             </StackPanel>
-            <Button Grid.Column="5" x:Name="btnNextDay" FontFamily="Segoe MDL2 Assets" Content="&#xEB9D;" Margin="5" VerticalAlignment="Center" ToolTipService.ToolTip="Tomorrow" Click="btnNextDay_Click"></Button>
-            <Button Grid.Column="6" x:Name="btnNextWeek" FontFamily="Segoe MDL2 Assets" Content="&#xE893;" Margin="5" VerticalAlignment="Center" ToolTipService.ToolTip="Next Week" Click="btnNextWeek_Click"></Button>
+            <Button Grid.Column="5" x:Name="btnNextDay" 
+                    FontFamily="Segoe MDL2 Assets" Content="&#xEB9D;" 
+                    Margin="5" VerticalAlignment="Center" 
+                    ToolTipService.ToolTip="Tomorrow" 
+                    Click="btnNextDay_ClickAsync"></Button>
+            <Button Grid.Column="6" x:Name="btnNextWeek" 
+                    FontFamily="Segoe MDL2 Assets" Content="&#xE893;" 
+                    Margin="5" VerticalAlignment="Center" 
+                    ToolTipService.ToolTip="Next Week" 
+                    Click="btnNextWeek_ClickAsync"></Button>
             <TextBox Grid.Column="7" x:Name="txtTimeInterval" Margin="5" VerticalAlignment="Center" InputScope="TimeMinutesOrSeconds" ToolTipService.ToolTip="Play Time Interval (s)"/>
             <Button Grid.Column="8" x:Name="btnPlay" FontFamily="Segoe MDL2 Assets" Content="&#xE768;" Margin="5" VerticalAlignment="Center" ToolTipService.ToolTip="Play"></Button>
             <Button Grid.Column="9" x:Name="btnMenu" FontFamily="Segoe MDL2 Assets" Content="&#xE712;" Margin="5, 5, 20, 5" VerticalAlignment="Center" ToolTipService.ToolTip="Menu">

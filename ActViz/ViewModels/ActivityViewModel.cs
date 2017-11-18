@@ -60,5 +60,8 @@ namespace ActViz.ViewModels
         {
             Color = RuntimeColors.ConvertFromHexString(activity.Color);
         }
+
+        private static ActivityViewModel _nullActivity = new ActivityViewModel(Activity.NullActivity);
+        public static ActivityViewModel NullActivity { get { return _nullActivity; } }
     }
 }

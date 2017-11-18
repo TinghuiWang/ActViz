@@ -23,6 +23,9 @@ namespace ActViz.Models
         [JsonProperty("sensors")]
         public List<Sensor> Sensors { get; set; }
 
+        [JsonProperty("timezone")]
+        public TimeZoneInfo TimeZone { get; set; }
+
         [JsonIgnore]
         public StorageFolder Folder { get; set; }
 

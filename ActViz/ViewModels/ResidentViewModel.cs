@@ -48,5 +48,8 @@ namespace ActViz.ViewModels
         {
             Color = RuntimeColors.ConvertFromHexString(resident.Color);
         }
+
+        private static ResidentViewModel _nullResident = new ResidentViewModel(Resident.NullResident);
+        public static ResidentViewModel NullResident { get { return _nullResident; } }
     }
 }

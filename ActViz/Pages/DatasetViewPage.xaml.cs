@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -59,12 +60,12 @@ namespace ActViz.Pages
                     Content = "Close",
                     Tag = "close"
                 }
-            }, (sender, args) =>
+            }, async (sender, args) =>
             {
                 switch((string)(args.SelectedItem as NavigationViewItem).Tag)
                 {
                     case "close":
-                        ClosePage();
+                        await ClosePageAsync();
                         break;
                     case "configure":
                         localFrame.Navigate(typeof(DatasetConfigurePage), _dataset);
@@ -79,9 +80,14 @@ namespace ActViz.Pages
             base.OnNavigatedTo(e);
         }
 
-        private void ClosePage()
+        private async Task ClosePageAsync()
         {
             MainPage mainPage = (Window.Current.Content as Frame).Content as MainPage;
+            if(mainPage.Frame.Content is DatasetEventsPage)
+            {
+                DatasetEventsPage page = mainPage.Frame.Content as DatasetEventsPage;
+                await page.ClosePageAsync();
+            }
             mainPage.BackToEmpty();
         }
     }
