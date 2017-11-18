@@ -83,9 +83,9 @@ namespace ActViz.Pages
         private async Task ClosePageAsync()
         {
             MainPage mainPage = (Window.Current.Content as Frame).Content as MainPage;
-            if(mainPage.Frame.Content is DatasetEventsPage)
+            if(localFrame.Content is DatasetEventsPage)
             {
-                DatasetEventsPage page = mainPage.Frame.Content as DatasetEventsPage;
+                DatasetEventsPage page = localFrame.Content as DatasetEventsPage;
                 await page.ClosePageAsync();
             }
             mainPage.BackToEmpty();
