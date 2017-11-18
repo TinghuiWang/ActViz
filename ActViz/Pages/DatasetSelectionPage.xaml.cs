@@ -101,9 +101,11 @@ namespace ActViz.Pages
 
         private async void BtnExportDataset_ClickAsync(object sender, RoutedEventArgs e)
         {
-            FolderPicker folderPicker = new FolderPicker();
-            folderPicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
-            folderPicker.ViewMode = PickerViewMode.List;
+            FolderPicker folderPicker = new FolderPicker
+            {
+                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+                ViewMode = PickerViewMode.List
+            };
             folderPicker.FileTypeFilter.Add("*");
             StorageFolder folder = await folderPicker.PickSingleFolderAsync();
             if (folder != null)
