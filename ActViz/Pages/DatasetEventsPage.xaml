@@ -87,13 +87,13 @@
                             <ColumnDefinition Width="200"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" FontFamily="Consolas" Margin="0,0,10,0" Text="{x:Bind TimeTag, Converter={StaticResource DateTimeToStringConverter}, Mode=OneWay, ConverterParameter='yyyy MM/dd H:mm:ss'}"/>
-                        <TextBlock Grid.Column="1" FontFamily="Consolas" Margin="0,0,10,0" Text="{x:Bind Sensor.Name, Mode=OneWay}" FontWeight="Bold"/>
-                        <TextBlock Grid.Column="2" FontFamily="Consolas" Margin="0,0,10,0" Text="{x:Bind SensorState, Mode=OneWay}"/>
-                        <TextBlock Grid.Column="3" FontFamily="Consolas" Margin="0,0,10,0" Text="{x:Bind Resident.Name, Mode=OneWay}">
+                        <TextBlock Grid.Column="1" FontFamily="Consolas" Margin="0,0,10,0" Text="{x:Bind Resident.Name, Mode=OneWay}">
                             <TextBlock.Foreground>
                                 <SolidColorBrush Color="{x:Bind Resident.Color, Mode=OneWay}" />
                             </TextBlock.Foreground>
                         </TextBlock>
+                        <TextBlock Grid.Column="2" FontFamily="Consolas" Margin="0,0,10,0" Text="{x:Bind Sensor.Name, Mode=OneWay}" FontWeight="Bold"/>
+                        <TextBlock Grid.Column="3" FontFamily="Consolas" Margin="0,0,10,0" Text="{x:Bind SensorState, Mode=OneWay}"/>
                         <TextBlock Grid.Column="4" FontFamily="Consolas" Margin="0,0,10,0" 
                                    Text="{x:Bind Activity.Name, Mode=OneWay}">
                             <TextBlock.Foreground>
