@@ -24,6 +24,9 @@ namespace ActViz.Models
         public List<Sensor> Sensors { get; set; }
 
         [JsonProperty("timezone")]
+        public string TimeZoneString { get; set; }
+
+        [JsonIgnore]
         public TimeZoneInfo TimeZone { get; set; }
 
         [JsonIgnore]
@@ -68,6 +71,11 @@ namespace ActViz.Models
             StorageFile siteMetaFile = await folder.GetFileAsync("site.json");
             string siteMetaString = await FileIO.ReadTextAsync(siteMetaFile);
             Site site = JsonConvert.DeserializeObject<Site>(siteMetaString);
+            if (site.TimeZoneString is null)
+            {
+                site.TimeZoneString = "America/Los_Angeles";
+            }
+            site.TimeZone = TimeZoneInfo.FindSystemTimeZoneById(TimeZoneConverter.TZConvert.IanaToWindows(site.TimeZoneString));
             site.Folder = folder;
             StorageFile floorplanFile = await folder.GetFileAsync(site.Floorplan);
             var stream = await floorplanFile.OpenReadAsync();

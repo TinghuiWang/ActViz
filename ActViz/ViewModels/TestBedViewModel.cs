@@ -44,6 +44,13 @@ namespace ActViz.ViewModels
             get { return _timeZone; }
             set { SetProperty(ref _timeZone, value); }
         }
+
+        private string _timeZoneString;
+        public string TimeZoneString
+        {
+            get { return _timeZoneString; }
+            set { SetProperty(ref _timeZoneString, value); }
+        }
     }
 
 }

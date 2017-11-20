@@ -100,6 +100,7 @@ namespace ActViz.Services
 
         public List<TestBedViewModel> GetTestBedsInfo()
         {
+            string timeZoneString;
             TimeZoneInfo timeZone;
             DateTime dateTime;
             if (dbConnection.State != System.Data.ConnectionState.Open) return null;
@@ -114,8 +115,8 @@ namespace ActViz.Services
                 {
                     while (reader.Read())
                     {
-                        timeZone = (reader.IsDBNull(4)) ? TimeZoneInfo.Utc :
-                            TimeZoneInfo.FindSystemTimeZoneById(TimeZoneConverter.TZConvert.IanaToWindows(reader.GetString(4)));
+                        timeZoneString = (reader.IsDBNull(4)) ? "UTC": reader.GetString(4);
+                        timeZone = TimeZoneInfo.FindSystemTimeZoneById(TimeZoneConverter.TZConvert.IanaToWindows(timeZoneString));
                         dateTime = (reader.IsDBNull(3)) ? DateTime.MinValue : reader.GetDateTime(3);
                         testBeds.Add(new TestBedViewModel()
                         {
@@ -124,7 +125,8 @@ namespace ActViz.Services
                             Active = (reader.IsDBNull(2)) ? false : reader.GetBoolean(2),
                             CreatedTime = (reader.IsDBNull(3)) ? DateTimeOffset.MinValue :
                                 new DateTimeOffset(DateTime.SpecifyKind(dateTime, DateTimeKind.Unspecified), timeZone.BaseUtcOffset),
-                            TimeZone = timeZone
+                            TimeZone = timeZone,
+                            TimeZoneString = timeZoneString
                         });
                     }
                 }

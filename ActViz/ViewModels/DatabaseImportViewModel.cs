@@ -237,7 +237,8 @@ namespace ActViz.ViewModels
                 Name = SiteName,
                 Floorplan = Path.GetFileName(SiteFloorplan),
                 Sensors = casasDatabaseService.GetSensors(TestBedSelected),
-                TimeZone = TestBedSelected.TimeZone
+                TimeZone = TestBedSelected.TimeZone,
+                TimeZoneString = TestBedSelected.TimeZoneString
             };
             await SiteFloorplanFile.CopyAsync(siteFolder, SiteFloorplanFile.Name, NameCollisionOption.ReplaceExisting);
             await site.WriteToFolderAsync();
