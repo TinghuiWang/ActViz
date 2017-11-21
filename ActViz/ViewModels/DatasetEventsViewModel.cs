@@ -324,6 +324,7 @@ namespace ActViz.ViewModels
                         return;
                     }
                 }
+                _dictDateEvents[previousDate.Value].Length = _eventStringList.Count - 1 - _dictDateEvents[previousDate.Value].Offset;
                 LastEventDate = previousDate.Value;
             }
             appLog.Info(this.GetType().Name, string.Format("Finished loading {0} events from dataset.", _eventStringList.Count));
