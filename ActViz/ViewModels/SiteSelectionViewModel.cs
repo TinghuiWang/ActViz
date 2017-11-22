@@ -77,5 +77,12 @@ namespace ActViz.ViewModels
             // Reload all sites
             await LoadFromLocalAsync();
         }
+
+        internal async Task RemoveSiteAsync(Site siteSelected)
+        {
+            if (SiteSelected == siteSelected) SiteSelected = null;
+            SiteList.Remove(siteSelected);
+            await siteSelected.Folder.DeleteAsync();
+        }
     }
 }

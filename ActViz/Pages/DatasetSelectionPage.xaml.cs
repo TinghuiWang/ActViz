@@ -149,7 +149,7 @@ namespace ActViz.Pages
             var result = await dialog.ShowAsync();
             if(result.Label == "Yes")
             {
-                _viewModel.RemoveDatasetAsync(_viewModel.DatasetSelected);
+                await _viewModel.RemoveDatasetAsync(_viewModel.DatasetSelected);
             }
         }
     }

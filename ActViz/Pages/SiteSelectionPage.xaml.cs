@@ -133,5 +133,17 @@ namespace ActViz.Pages
                 ((Window.Current.Content as Frame).Content as MainPage).MainFrameNavigate(typeof(SiteEditPage), _viewModel.SiteSelected);
 
         }
+
+        private async void BtnDeleteSite_ClickAsync(object sender, RoutedEventArgs e)
+        {
+            MessageDialog dialog = new MessageDialog("Do you want to remove site " + _viewModel.SiteSelected.Name + " permanently?", "Remove Site");
+            dialog.Commands.Add(new UICommand("Yes"));
+            dialog.Commands.Add(new UICommand("No"));
+            var result = await dialog.ShowAsync();
+            if (result.Label == "Yes")
+            {
+                await _viewModel.RemoveSiteAsync(_viewModel.SiteSelected);
+            }
+        }
     }
 }

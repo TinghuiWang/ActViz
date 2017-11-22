@@ -58,6 +58,13 @@
                         <FontIcon Glyph="&#xE890;" />
                     </AppBarButton.Icon>
                 </AppBarButton>
+                <AppBarButton Label="Delete Site"
+                              IsEnabled="{x:Bind _viewModel.IsSiteSelected, Mode=OneWay}"
+                              Click="BtnDeleteSite_ClickAsync">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE74D;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
             </CommandBar>
         </Grid>
         <controls:MasterDetailsView 
