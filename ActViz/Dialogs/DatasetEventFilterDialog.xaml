@@ -1,0 +1,214 @@
+﻿<ContentDialog
+    x:Class="ActViz.Dialogs.DatasetEventFilterDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ActViz.Dialogs"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewmodels="using:ActViz.ViewModels"
+    xmlns:converters="using:Microsoft.Toolkit.Uwp.UI.Converters"
+    mc:Ignorable="d"
+    Title="Dataset Event Filter"
+    PrimaryButtonText="Apply"
+    SecondaryButtonText="Cancel"
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
+    SecondaryButtonClick="ContentDialog_SecondaryButtonClick">
+
+    <ContentDialog.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" TrueValue="Visible" FalseValue="Collapsed" />
+    </ContentDialog.Resources>
+    
+    <ScrollViewer Padding="10" VerticalScrollBarVisibility="Auto">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition MinWidth="300" Width="1*"/>
+                <ColumnDefinition Width="150"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <TextBlock Text="Sensor Status Filter"
+                       Grid.Row="0" Grid.Column="0"
+                       VerticalAlignment="Center"/>
+            <ToggleSwitch OnContent="Enable" OffContent="Disable"
+                          FlowDirection="RightToLeft"
+                          HorizontalAlignment="Right"
+                          Margin="0" Padding="0"
+                          Grid.Row="0" Grid.Column="1"
+                          IsOn="{x:Bind _viewModel.IsSensorStatusFilterEnabled, Mode=TwoWay}"/>
+            <ListView Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                      BorderBrush="Gray" BorderThickness="1" Margin="0, 5"
+                      SelectionMode="None"
+                      Visibility="{x:Bind _viewModel.IsSensorStatusFilterEnabled, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
+                      ItemsSource="{x:Bind _viewModel.SensorStatusFilter}">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="viewmodels:SensorStatusFilterViewModel">
+                        <Grid HorizontalAlignment="Stretch">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="160"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0"
+                                       VerticalAlignment="Center"
+                                       Text="{x:Bind SensorStatus}"/>
+                            <ToggleSwitch Grid.Column="1"
+                                          OnContent="Hide" OffContent="Show"
+                                          IsOn="{x:Bind IsHidden, Mode=TwoWay}"
+                                          FlowDirection="RightToLeft"
+                                          Margin="0" Padding="0"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    </Style>
+                </ListView.ItemContainerStyle>
+            </ListView>
+            <TextBlock Text="Sensor Type Filter"
+                       Grid.Row="2" Grid.Column="0"
+                       VerticalAlignment="Center"/>
+            <ToggleSwitch OnContent="Enable" OffContent="Disable"
+                          FlowDirection="RightToLeft"
+                          HorizontalAlignment="Right"
+                          Margin="0" Padding="0"
+                          Grid.Row="2" Grid.Column="1"
+                          IsOn="{x:Bind _viewModel.IsSensorCategoryFilterEnabled, Mode=TwoWay}"/>
+            <ListView Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
+                      BorderBrush="Gray" BorderThickness="1" Margin="0, 5"
+                      SelectionMode="None"
+                      Visibility="{x:Bind _viewModel.IsSensorCategoryFilterEnabled, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
+                      ItemsSource="{x:Bind _viewModel.SensorCategoryFilter}">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="viewmodels:SensorCategoryFilterViewModel">
+                        <Grid HorizontalAlignment="Stretch">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="20" />
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="160"/>
+                            </Grid.ColumnDefinitions>
+                            <Rectangle Grid.Column="0" Width="16" Height="16" Stroke="Black" StrokeThickness="1">
+                                <Rectangle.Fill>
+                                    <SolidColorBrush Color="{x:Bind SensorCategory.Color}" />
+                                </Rectangle.Fill>
+                            </Rectangle>
+                            <TextBlock Grid.Column="1" Margin="5, 0"
+                                       VerticalAlignment="Center"
+                                       Text="{x:Bind SensorCategory.Name}"/>
+                            <ToggleSwitch Grid.Column="2"
+                                          OnContent="Hide" OffContent="Show"
+                                          IsOn="{x:Bind IsHidden, Mode=TwoWay}"
+                                          FlowDirection="RightToLeft"
+                                          Margin="0" Padding="0"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    </Style>
+                </ListView.ItemContainerStyle>
+            </ListView>
+            <TextBlock Text="Activity Filter"
+                       Grid.Row="4" Grid.Column="0"
+                       VerticalAlignment="Center"/>
+            <ToggleSwitch OnContent="Enable" OffContent="Disable"
+                          FlowDirection="RightToLeft"
+                          HorizontalAlignment="Right"
+                          Margin="0" Padding="0"
+                          Grid.Row="4" Grid.Column="1"
+                          IsOn="{x:Bind _viewModel.IsActivityFilterEnabled, Mode=TwoWay}"/>
+            <ListView Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2"
+                      BorderBrush="Gray" BorderThickness="1" Margin="0, 5"
+                      SelectionMode="None"
+                      Visibility="{x:Bind _viewModel.IsActivityFilterEnabled, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
+                      ItemsSource="{x:Bind _viewModel.ActivityFilter}">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="viewmodels:ActivityFilterViewModel">
+                        <Grid HorizontalAlignment="Stretch">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="20" />
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="160"/>
+                            </Grid.ColumnDefinitions>
+                            <Rectangle Grid.Column="0" 
+                                       Width="16" Height="16" 
+                                       Stroke="Black" StrokeThickness="1">
+                                <Rectangle.Fill>
+                                    <SolidColorBrush Color="{x:Bind Activity.Color}" />
+                                </Rectangle.Fill>
+                            </Rectangle>
+                            <TextBlock Grid.Column="1" Margin="5, 0"
+                                       VerticalAlignment="Center"
+                                       Text="{x:Bind Activity.Name}"/>
+                            <ToggleSwitch Grid.Column="2"
+                                          OnContent="Hide" OffContent="Show"
+                                          IsOn="{x:Bind IsHidden, Mode=TwoWay}"
+                                          FlowDirection="RightToLeft"
+                                          Margin="0" Padding="0"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    </Style>
+                </ListView.ItemContainerStyle>
+            </ListView>
+            <TextBlock Text="Resident Filter"
+                       Grid.Row="6" Grid.Column="0"
+                       VerticalAlignment="Center"/>
+            <ToggleSwitch OnContent="Enable" OffContent="Disable"
+                          FlowDirection="RightToLeft"
+                          HorizontalAlignment="Right"
+                          Margin="0" Padding="0"
+                          Grid.Row="6" Grid.Column="1"
+                          IsOn="{x:Bind _viewModel.IsResidentFilterEnabled, Mode=TwoWay}"/>
+            <ListView Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2"
+                      BorderBrush="Gray" BorderThickness="1" Margin="0, 5"
+                      SelectionMode="None"
+                      Visibility="{x:Bind _viewModel.IsResidentFilterEnabled, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
+                      ItemsSource="{x:Bind _viewModel.ResidentFilter}">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="viewmodels:ResidentFilterViewModel">
+                        <Grid HorizontalAlignment="Stretch">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="20" />
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="160"/>
+                            </Grid.ColumnDefinitions>
+                            <Rectangle Grid.Column="0" 
+                                       Width="16" Height="16" 
+                                       Stroke="Black" StrokeThickness="1" >
+                                <Rectangle.Fill>
+                                    <SolidColorBrush Color="{x:Bind Resident.Color}" />
+                                </Rectangle.Fill>
+                            </Rectangle>
+                            <TextBlock Grid.Column="1" Margin="5, 0"
+                                       VerticalAlignment="Center"
+                                       Text="{x:Bind Resident.Name}"/>
+                            <ToggleSwitch Grid.Column="2"
+                                          OnContent="Hide" OffContent="Show"
+                                          IsOn="{x:Bind IsHidden, Mode=TwoWay}"
+                                          FlowDirection="RightToLeft"
+                                          Margin="0" Padding="0"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    </Style>
+                </ListView.ItemContainerStyle>
+            </ListView>
+        </Grid>
+    </ScrollViewer>
+
+</ContentDialog>

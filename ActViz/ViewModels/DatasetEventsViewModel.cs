@@ -418,6 +418,11 @@ namespace ActViz.ViewModels
             return sensorViewModel;
         }
 
+        internal void RefreshEventsInView()
+        {
+            EventsInView.Refresh();
+        }
+
         internal ActivityViewModel GetActivityByName(string name, bool AddIfNotFound = false)
         {
             if (name == "")

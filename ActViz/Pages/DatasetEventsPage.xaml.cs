@@ -1,4 +1,5 @@
-﻿using ActViz.Models;
+﻿using ActViz.Dialogs;
+using ActViz.Models;
 using ActViz.Services;
 using ActViz.ViewModels;
 using System;
@@ -417,9 +418,12 @@ namespace ActViz.Pages
             annotateFlyout.ShowAt(sender as ListView, e.GetPosition(sender as ListView));
         }
 
-        private void menuFilter_ClickAsync(object sender, RoutedEventArgs e)
+        private async void menuFilter_ClickAsync(object sender, RoutedEventArgs e)
         {
-
+            DatasetEventFilterDialog dialog = new DatasetEventFilterDialog(_viewModel.EventViewFilter, _viewModel.Residents, _viewModel.Activities);
+            ContentDialogResult result = await dialog.ShowAsync();
+            if (result == ContentDialogResult.Primary)
+                _viewModel.RefreshEventsInView();
         }
 
         private void menuConfig_ClickAsync(object sender, RoutedEventArgs e)
