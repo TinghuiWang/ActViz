@@ -140,5 +140,17 @@ namespace ActViz.Pages
         {
 
         }
+
+        private async void BtnDeleteDataset_ClickAsync(object sender, RoutedEventArgs e)
+        {
+            MessageDialog dialog = new MessageDialog("Do you want to remove dataset " + _viewModel.DatasetSelected.Name + " permanently?", "Remove Dataset");
+            dialog.Commands.Add(new UICommand("Yes"));
+            dialog.Commands.Add(new UICommand("No"));
+            var result = await dialog.ShowAsync();
+            if(result.Label == "Yes")
+            {
+                _viewModel.RemoveDatasetAsync(_viewModel.DatasetSelected);
+            }
+        }
     }
 }

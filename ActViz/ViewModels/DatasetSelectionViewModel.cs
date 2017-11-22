@@ -82,5 +82,12 @@ namespace ActViz.ViewModels
             // Reload all data
             await LoadFromLocalAsync();
         }
+
+        internal async Task RemoveDatasetAsync(Dataset datasetSelected)
+        {
+            if (DatasetSelected == datasetSelected) DatasetSelected = null;
+            DatasetList.Remove(datasetSelected);
+            await datasetSelected.Folder.DeleteAsync();
+        }
     }
 }

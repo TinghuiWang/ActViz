@@ -63,6 +63,13 @@
                         <FontIcon Glyph="&#xE890;" />
                     </AppBarButton.Icon>
                 </AppBarButton>
+                <AppBarButton Label="Delete Dataset"
+                              IsEnabled="{x:Bind _viewModel.IsDatasetSelected, Mode=OneWay}"
+                              Click="BtnDeleteDataset_ClickAsync">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE74D;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
             </CommandBar>
         </Grid>
         <controls:MasterDetailsView x:Name="datasetView" Grid.Row="1"
