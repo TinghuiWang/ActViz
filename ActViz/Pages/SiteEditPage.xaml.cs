@@ -10,6 +10,8 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Storage;
+using Windows.Storage.Pickers;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Core;
@@ -67,6 +69,7 @@ namespace ActViz.Pages
                     await this.ClosePageAsync();
                 }
             });
+
             base.OnNavigatedTo(e);
         }
 
@@ -376,7 +379,7 @@ namespace ActViz.Pages
                 Text = "Edit",
                 Tag = tuple
             };
-            sensorConfigMenu_Config.Click += btnEditSensor_ClickAsync;
+            sensorConfigMenu_Config.Click += BtnEditSensor_ClickAsync;
             MenuFlyoutItem sensorConfigMenu_Delete = new MenuFlyoutItem
             {
                 Text = "Delete",
@@ -522,17 +525,17 @@ namespace ActViz.Pages
         }
         #endregion
 
-        private void floorplanImage_SizeChanged(object sender, SizeChangedEventArgs e)
+        private void FloorplanImage_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             DrawSensors();
         }
 
-        private void sensorCanvas_SizeChanged(object sender, SizeChangedEventArgs e)
+        private void SensorCanvas_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             DrawSensors();
         }
 
-        private async void btnEditSensor_ClickAsync(object sender, RoutedEventArgs e)
+        private async void BtnEditSensor_ClickAsync(object sender, RoutedEventArgs e)
         {
             EditSensorDialog dialog = new EditSensorDialog(_viewModel.SensorSelected);
             ContentDialogResult result = await dialog.ShowAsync();
@@ -542,7 +545,7 @@ namespace ActViz.Pages
             }
         }
 
-        private async void btnNewSensor_ClickAsync(object sender, RoutedEventArgs e)
+        private async void BtnNewSensor_ClickAsync(object sender, RoutedEventArgs e)
         {
             AddSensorDialog dialog = new AddSensorDialog();
             ContentDialogResult result = await dialog.ShowAsync();
@@ -553,17 +556,42 @@ namespace ActViz.Pages
             }
         }
 
-        private async void btnCloseSite_ClickAsync(object sender, RoutedEventArgs e)
+        private async void BtnCloseSite_ClickAsync(object sender, RoutedEventArgs e)
         {
             await ClosePageAsync();
         }
 
-        private async void btnSaveSite_ClickAsync(object sender, RoutedEventArgs e)
+        private async void BtnSaveSite_ClickAsync(object sender, RoutedEventArgs e)
         {
+            if(_viewModel.IsSiteNameEditable)
+            {
+                try
+                {
+                    // we may need to write it back to a different folder
+                    await ((Site)_viewModel).Folder.RenameAsync(_viewModel.Name, NameCollisionOption.FailIfExists);
+                }
+                catch (Exception except)
+                {
+                    MessageDialog dialog = new MessageDialog("Site name " + _viewModel.Name + " found. Overwrite?", "Save Site");
+                    dialog.Commands.Add(new UICommand("Yes"));
+                    dialog.Commands.Add(new UICommand("No"));
+                    dialog.DefaultCommandIndex = 1;
+                    var result = await dialog.ShowAsync();
+                    if (result.Label == "Yes")
+                    {
+                        // we may need to write it back to a different folder
+                        await ((Site)_viewModel).Folder.RenameAsync(_viewModel.Name, NameCollisionOption.FailIfExists);
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+            }
             await _viewModel.WriteBackToFolderAsync();
         }
 
-        private void sensorListTypeSelect_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void SensorListTypeSelect_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             DrawSensors();
         }
@@ -636,7 +664,7 @@ namespace ActViz.Pages
             Windows.ApplicationModel.Core.CoreApplication.GetCurrentView().CoreWindow.KeyDown -= CoreWindow_KeyDownAsync;
         }
 
-        private void sensorList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void SensorList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (_viewModel.SensorSelected != null)
             {
@@ -654,6 +682,55 @@ namespace ActViz.Pages
                     }
                 }
                 DrawSensors();
+            }
+        }
+
+        private async void BtnChangeFloorplan_ClickAsync(object sender, RoutedEventArgs e)
+        {
+            FileOpenPicker filePicker = new FileOpenPicker
+            {
+                ViewMode = PickerViewMode.Thumbnail,
+                SuggestedStartLocation = PickerLocationId.DocumentsLibrary
+            };
+            filePicker.FileTypeFilter.Add(".jpg");
+            filePicker.FileTypeFilter.Add(".jpeg");
+            filePicker.FileTypeFilter.Add(".png");
+            filePicker.FileTypeFilter.Add(".bmp");
+            StorageFile floorPlanFile = await filePicker.PickSingleFileAsync();
+            if (floorPlanFile != null)
+            {
+                MessageDialog dialog = new MessageDialog(
+                    "Do you want to replace the floorplan with the file at " + floorPlanFile.Path + "?",
+                    "Replace Floorplan");
+                dialog.Commands.Add(new UICommand("Yes"));
+                dialog.Commands.Add(new UICommand("No"));
+                dialog.DefaultCommandIndex = 1; 
+                var result = await dialog.ShowAsync();
+                if(result.Label == "Yes")
+                {
+                    // Replace floorplan file.
+                    await _viewModel.ReplaceFloorPlanAsync(floorPlanFile);
+                }
+            }
+        }
+
+        private void BtnRenameSite_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.IsSiteNameEditable = true;
+        }
+
+        private async void BtnDeleteSensor_ClickAsync(object sender, RoutedEventArgs e)
+        {
+            MessageDialog dialog = new MessageDialog(
+                "Do you want to remove sensor " + _viewModel.SensorSelected.Name + "?",
+                "Remove Sensor");
+            dialog.Commands.Add(new UICommand("Yes"));
+            dialog.Commands.Add(new UICommand("No"));
+            dialog.DefaultCommandIndex = 1;
+            var result = await dialog.ShowAsync();
+            if (result.Label == "Yes")
+            {
+                _viewModel.RemoveSensor(_viewModel.SensorSelected);
             }
         }
     }

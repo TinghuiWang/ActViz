@@ -20,7 +20,8 @@ namespace ActViz.ViewModels
             set
             {
                 SetProperty(This.Name, value, () => This.Name = value);
-                IsSiteChanged = true;
+                if (IsSiteNameEditable)
+                    IsSiteChanged = true;
             }
         }
 
@@ -69,6 +70,16 @@ namespace ActViz.ViewModels
             }
         }
 
+        private bool _isSiteNameEditable = false;
+        public bool IsSiteNameEditable
+        {
+            get { return _isSiteNameEditable; }
+            set
+            {
+                SetProperty(ref _isSiteNameEditable, value);
+            }
+        }
+
         private bool _isSiteChanged = false;
         public bool IsSiteChanged
         {
@@ -109,6 +120,10 @@ namespace ActViz.ViewModels
 
         public void RemoveSensor(SensorViewModel sensorViewModel)
         {
+            if(SensorSelected == sensorViewModel)
+            {
+                SensorSelected = null;
+            }
             This.Sensors.Remove(sensorViewModel);
             SensorList.Remove(sensorViewModel);
             IsSiteChanged = true;
@@ -118,6 +133,11 @@ namespace ActViz.ViewModels
         {
             await This.WriteToFolderAsync();
             IsSiteChanged = false;
+        }
+
+        internal async Task ReplaceFloorPlanAsync(StorageFile floorPlanFile)
+        {
+            await floorPlanFile.CopyAsync(This.Folder, FloorPlan, NameCollisionOption.ReplaceExisting);
         }
     }
 }

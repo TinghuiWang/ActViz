@@ -6,12 +6,18 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:converters="using:Microsoft.Toolkit.Uwp.UI.Converters"
     xmlns:models="using:ActViz.Models"
     xmlns:viewmodels="using:ActViz.ViewModels"
     Loaded="Page_Loaded"
     Unloaded="Page_Unloaded"
     mc:Ignorable="d">
 
+    <Page.Resources>
+        <converters:BoolNegationConverter x:Key="BoolNegationConverter" />
+        <converters:BoolToObjectConverter x:Key="BoolToBorderThickness" TrueValue="1" FalseValue="0" />
+    </Page.Resources>
+    
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -19,14 +25,62 @@
         </Grid.RowDefinitions>
         <Grid Margin="24,24,0,0" Grid.Row="0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="1*"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <TextBlock x:Name="textBlockTitle"
-                       Style="{StaticResource TitleTextBlockStyle}"
-                       FontSize="28"
-                       FontFamily="Comic Sans MS" FontWeight="Bold" FontStyle="Italic"
-                       VerticalAlignment="Center" />
+            <TextBox Grid.Column="0" Margin="5"
+                     BorderThickness="{x:Bind _viewModel.IsSiteNameEditable, Converter={StaticResource BoolToBorderThickness}, Mode=OneWay}"
+                     IsReadOnly="{x:Bind _viewModel.IsSiteNameEditable, Converter={StaticResource BoolNegationConverter}, Mode=OneWay}"
+                     FontSize="28" Text="{x:Bind _viewModel.Name, Mode=TwoWay}"
+                     FontFamily="Comic Sans MS" FontWeight="Bold" FontStyle="Italic"
+                     VerticalAlignment="Center" />
+            <CommandBar x:Name="appCommandBar"  
+                        Grid.Column="1"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        DefaultLabelPosition="Right"
+                        Background="{ThemeResource SystemControlBackgroundAltHighBrush}">
+                <AppBarButton Label="Save Site"
+                              IsEnabled="{x:Bind _viewModel.IsSiteChanged, Mode=OneWay}"
+                              Click="BtnSaveSite_ClickAsync">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE74E;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton Label="Change Floor Plan"
+                            Click="BtnChangeFloorplan_ClickAsync">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE826;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton Label="Rename Site"
+                              IsEnabled="{x:Bind _viewModel.IsSiteNameEditable, Converter={StaticResource BoolNegationConverter}, Mode=OneWay}"
+                              Click="BtnRenameSite_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE8AC;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton Label="Add Sensor"
+                              Click="BtnNewSensor_ClickAsync">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE836;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton Label="Edit Sensor"
+                              IsEnabled="{x:Bind _viewModel.IsSensorSelected, Mode=OneWay}"
+                              Click="BtnEditSensor_ClickAsync">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE70F;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton Label="Delete Sensor"
+                              IsEnabled="{x:Bind _viewModel.IsSensorSelected, Mode=OneWay}"
+                              Click="BtnDeleteSensor_ClickAsync">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE74D;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+            </CommandBar>
         </Grid>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
@@ -40,28 +94,12 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="1*" />
             </Grid.RowDefinitions>
-            <Grid Grid.Column="2" Grid.Row="0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*" />
-                    <ColumnDefinition Width="1*" />
-                </Grid.ColumnDefinitions>
-                <Button x:Name="btnSaveSite" Margin="5"
-                    Grid.Column="0" HorizontalAlignment="Stretch"
-                    Content="Save" Click="btnSaveSite_ClickAsync"
-                    IsEnabled="{x:Bind _viewModel.IsSiteChanged, Mode=OneWay}"></Button>
-                <Button x:Name="btnCloseSite" Margin="5"
-                Grid.Column="1" HorizontalAlignment="Stretch"
-                Content="Close" Click="btnCloseSite_ClickAsync"></Button>
-            </Grid>
-            <Button x:Name="btnNewSensor" Margin="5" 
-                Grid.Column="0" Grid.Row="1" HorizontalAlignment="Stretch" 
-                Click="btnNewSensor_ClickAsync">New Sensor</Button>
             <ComboBox x:Name="sensorListTypeSelect" Margin="5"
                       Grid.Column="0" Grid.Row="2" MinWidth="100"
                       HorizontalAlignment="Stretch"
                       ItemsSource="{x:Bind _viewModel.SensorCategories}"
                       SelectedItem="{x:Bind _viewModel.SensorCategorySelected, Mode=TwoWay}"
-                      SelectionChanged="sensorListTypeSelect_SelectionChanged">
+                      SelectionChanged="SensorListTypeSelect_SelectionChanged">
                 <ComboBox.ItemTemplate>
                     <DataTemplate x:DataType="models:SensorCategory">
                         <StackPanel Orientation="Horizontal">
@@ -82,7 +120,7 @@
                   SelectionMode="Single"
                   ItemsSource="{x:Bind _viewModel.SensorInView}"
                   SelectedItem="{x:Bind _viewModel.SensorSelected, Mode=TwoWay}"
-                  SelectionChanged="sensorList_SelectionChanged">
+                  SelectionChanged="SensorList_SelectionChanged">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="viewmodels:SensorViewModel">
                         <TextBlock Grid.Column="0" Text="{x:Bind Name, Mode=TwoWay}"></TextBlock>
@@ -91,11 +129,11 @@
             </ListView>
             <Image x:Name="floorplanImage" 
                Grid.Column="1" Grid.Row="1" Grid.RowSpan="3"
-               SizeChanged="floorplanImage_SizeChanged" Margin="10"
+               SizeChanged="FloorplanImage_SizeChanged" Margin="10"
                Source="{x:Bind _viewModel.ImgFloorPlan}"></Image>
             <Canvas x:Name="sensorCanvas" Margin="10"
                 Grid.Column="1" Grid.Row="1" Grid.RowSpan="3" 
-                SizeChanged="sensorCanvas_SizeChanged"></Canvas>
+                SizeChanged="SensorCanvas_SizeChanged"></Canvas>
             <controls:GridSplitter 
                 Grid.Column="1" Grid.Row="1" Grid.RowSpan="3"
                 ResizeBehavior="BasedOnAlignment"
@@ -157,11 +195,6 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="1*" />
                 </Grid.ColumnDefinitions>
-                <Button x:Name="btnEditSensor" Margin="5"
-                    Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
-                    Content="Edit Sensor" HorizontalAlignment="Stretch"
-                    IsEnabled="{x:Bind _viewModel.IsSensorSelected, Mode=OneWay}"
-                    Click="btnEditSensor_ClickAsync"></Button>
                 <TextBlock Grid.Row="1" Grid.Column="0">Sensor Name:</TextBlock>
                 <TextBlock Grid.Row="1" Grid.Column="1" Margin="5, 0"
                        Text="{x:Bind _viewModel.SensorSelected.Name, Mode=OneWay}"></TextBlock>
