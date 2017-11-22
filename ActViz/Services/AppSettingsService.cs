@@ -12,16 +12,14 @@ namespace ActViz.Services
         public static T RetrieveFromSettings<T>(string key, T defaultValue, ApplicationDataContainer localSettings = null)
         {
             if (localSettings == null) localSettings = ApplicationData.Current.LocalSettings;
-            try
+            if (localSettings.Values.TryGetValue(key, out object value))
             {
-                return (T)localSettings.Values[key];
+                return (T)value;
             }
-            catch (Exception)
+            else
             {
                 return defaultValue;
             }
         }
-
-
     }
 }
