@@ -96,6 +96,7 @@ namespace ActViz.Pages
                 }
                 PageBusy(string.Format("Importing dataset {0}...", dataset.Name));
                 await _viewModel.AddDatasetAsync(dataset);
+                PageReady();
             }
         }
 

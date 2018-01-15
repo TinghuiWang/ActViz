@@ -70,14 +70,13 @@ namespace ActViz.ViewModels
 
         internal async Task AddDatasetAsync(Dataset dataset)
         {
-            // TODO: Check and prompt for overwrite
             // Copy to Local Data
             StorageFolder sitesFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("datasets", CreationCollisionOption.OpenIfExists);
             StorageFolder targetDatasetFolder = await sitesFolder.CreateFolderAsync(dataset.Name, CreationCollisionOption.OpenIfExists);
             IReadOnlyList<StorageFile> fileList = await dataset.Folder.GetFilesAsync();
             for (int i = 0; i < fileList.Count; i++)
             {
-                await fileList[i].CopyAsync(targetDatasetFolder);
+                await fileList[i].CopyAsync(targetDatasetFolder, fileList[i].Name, NameCollisionOption.ReplaceExisting);
             }
             // Reload all data
             await LoadFromLocalAsync();

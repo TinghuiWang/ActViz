@@ -72,7 +72,7 @@ namespace ActViz.ViewModels
             IReadOnlyList<StorageFile> fileList = await site.Folder.GetFilesAsync();
             for (int i = 0; i < fileList.Count; i++)
             {
-                await fileList[i].CopyAsync(targetSiteFolder);
+                await fileList[i].CopyAsync(targetSiteFolder, fileList[i].Name, NameCollisionOption.ReplaceExisting);
             }
             // Reload all sites
             await LoadFromLocalAsync();
