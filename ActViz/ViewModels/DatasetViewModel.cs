@@ -27,7 +27,10 @@ namespace ActViz.ViewModels
         public ActivityViewModel ActivitySelected
         {
             get { return _activitySelected; }
-            set { SetProperty(ref _activitySelected, value); }
+            set {
+                SetProperty(ref _activitySelected, value);
+                IsActivitySelected = (_activitySelected == null) ? false : true;
+            }
         }
 
         private bool _isActivitySelected = false;
@@ -41,7 +44,10 @@ namespace ActViz.ViewModels
         public ResidentViewModel ResidentSelected
         {
             get { return _residentSelected; }
-            set { SetProperty(ref _residentSelected, value); }
+            set {
+                SetProperty(ref _residentSelected, value);
+                IsResidentSelected = (_residentSelected == null) ? false : true;
+            }
         }
 
         private bool _isResidentSelected = false;

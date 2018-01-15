@@ -357,7 +357,7 @@ namespace ActViz.ViewModels
             }
         }
 
-        internal Dictionary<ResidentViewModel, List<SensorEventViewModel>> GetPastStepsOfResidents(int maxSeconds = 3600, int maxSteps = 200)
+        internal Dictionary<ResidentViewModel, List<SensorEventViewModel>> GetPastStepsOfResidents(int maxSeconds = 7200, int maxSteps = 1000)
         {
             Dictionary<ResidentViewModel, List<SensorEventViewModel>> pastStepsOfResidents = 
                 new Dictionary<ResidentViewModel, List<SensorEventViewModel>>();
@@ -381,6 +381,7 @@ namespace ActViz.ViewModels
                 // Otherwise, Log sensor if resident is labelled.
                 if (tempEvent.Resident != ResidentViewModel.NullResident)
                 {
+                    // TODO Check if Resident does not exist in Dictionary
                     if (!sensorCheckDictionary[tempEvent.Resident].Contains(tempEvent.Sensor))
                     {
                         if (!SensorStatusStopToken.Contains(tempEvent.SensorState))
