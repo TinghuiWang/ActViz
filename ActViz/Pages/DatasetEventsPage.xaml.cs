@@ -393,7 +393,7 @@ namespace ActViz.Pages
                         line.Y1 = (sensorCanvas.ActualHeight - totalY) / 2 + (startSensor.LocY) * totalY + sensorIconHeight;
                         line.Y2 = (sensorCanvas.ActualHeight - totalY) / 2 + (stopSensor.LocY) * totalY;
                     }
-                    double opacity = (i < 10 && i >= 0) ? 1 - 0.1 * i : 0;
+                    double opacity = (i < 20 && i >= 0) ? 1 - 0.05 * i : 0;
                     line.Stroke = new SolidColorBrush(entry.Key.Color);
                     line.StrokeThickness = 2;
                     line.Opacity = opacity;
