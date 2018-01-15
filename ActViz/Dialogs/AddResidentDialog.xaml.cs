@@ -27,9 +27,11 @@ namespace ActViz.Dialogs
         ResidentViewModel _residentViewModel = new ResidentViewModel(new Resident());
         public ResidentViewModel ResidentViewModel { get { return _residentViewModel; } }
         ObservableCollection<Color> ColorCollection = RuntimeColors.Instance.ColorCollection;
+        HashSet<string> _existingResidentNames;
 
-        public AddResidentDialog()
+        public AddResidentDialog(HashSet<string> existingResidentNames)
         {
+            _existingResidentNames = existingResidentNames;
             this.InitializeComponent();
         }
 
@@ -39,6 +41,18 @@ namespace ActViz.Dialogs
 
         private void AddResidentDialog_CancelClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
+        }
+
+        private void txtResidentName_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (txtResidentName.Text == "" || _existingResidentNames.Contains(txtResidentName.Text))
+            {
+                IsPrimaryButtonEnabled = false;
+            }
+            else
+            {
+                IsPrimaryButtonEnabled = true;
+            }
         }
     }
 }

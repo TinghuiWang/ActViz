@@ -33,10 +33,11 @@
         <TextBlock Grid.Column="0" Grid.Row="1" 
                    Margin="0,5,10,5" VerticalAlignment="Center" 
                    Text="Resident Name"/>
-        <TextBox x:Name="txtNameAddSensor" 
+        <TextBox x:Name="txtResidentName" 
                  Grid.Column="1" Grid.Row="1" Margin="0,5" 
                  HorizontalAlignment="Stretch" IsReadOnly="False" 
-                 Text="{x:Bind _residentViewModel.Name, Mode=TwoWay}"></TextBox>
+                 Text="{x:Bind _residentViewModel.Name, Mode=TwoWay}"
+                 TextChanged="txtResidentName_TextChanged"></TextBox>
         <TextBlock Grid.Column="0" Grid.Row="2" Margin="0,5,10,5" VerticalAlignment="Center">Resident Color:</TextBlock>
         <ComboBox x:Name="comboResidentColor"
                   Grid.Column="1" Grid.Row="2" 

@@ -27,9 +27,11 @@ namespace ActViz.Dialogs
         ActivityViewModel _activityViewModel = new ActivityViewModel(new Activity());
         public ActivityViewModel ActivityViewModel { get { return _activityViewModel; } }
         ObservableCollection<Color> ColorCollection = RuntimeColors.Instance.ColorCollection;
+        HashSet<string> _existingActivityNames;
 
-        public AddActivityDialog()
-        { 
+        public AddActivityDialog(HashSet<string> existingActivityNames)
+        {
+            _existingActivityNames = existingActivityNames;
             this.InitializeComponent();
         }
 
@@ -39,6 +41,18 @@ namespace ActViz.Dialogs
 
         private void AddActivityDialog_CancelClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
+        }
+
+        private void txtActivityName_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if(txtActivityName.Text == "" || _existingActivityNames.Contains(txtActivityName.Text))
+            {
+                IsPrimaryButtonEnabled = false;
+            }
+            else
+            {
+                IsPrimaryButtonEnabled = true;
+            }
         }
     }
 }

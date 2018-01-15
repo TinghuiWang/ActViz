@@ -25,10 +25,12 @@ namespace ActViz.Dialogs
     {
         ActivityViewModel _viewModel;
         ObservableCollection<Color> ColorCollection = RuntimeColors.Instance.ColorCollection;
+        HashSet<string> _existingActivityNames;
 
-        public EditActivityDialog(ActivityViewModel activityViewModel)
+        public EditActivityDialog(ActivityViewModel activityViewModel, HashSet<string> existingActivityNames)
         {
             _viewModel = activityViewModel;
+            _existingActivityNames = existingActivityNames;
             if (!ColorCollection.Contains(_viewModel.Color))
                 ColorCollection.Add(_viewModel.Color);
             this.InitializeComponent();
@@ -54,7 +56,7 @@ namespace ActViz.Dialogs
 
         private void comboActivityColor_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (comboActivityColor.SelectedItem != null)
+            if (comboActivityColor.SelectedItem == null)
             {
                 IsPrimaryButtonEnabled = false;
             }
@@ -66,7 +68,7 @@ namespace ActViz.Dialogs
 
         private void txtActivityName_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (txtActivityName.Text == "")
+            if (txtActivityName.Text == "" || _existingActivityNames.Contains(txtActivityName.Text))
             {
                 IsPrimaryButtonEnabled = false;
             }

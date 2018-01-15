@@ -26,10 +26,12 @@ namespace ActViz.Dialogs
     {
         ResidentViewModel _viewModel;
         ObservableCollection<Color> ColorCollection = RuntimeColors.Instance.ColorCollection;
+        HashSet<string> _existingResidentNames;
 
-        public EditResidentDialog(ResidentViewModel residentViewModel)
+        public EditResidentDialog(ResidentViewModel residentViewModel, HashSet<string> existingResidentNames)
         {
             _viewModel = residentViewModel;
+            _existingResidentNames = existingResidentNames;
             if (!ColorCollection.Contains(_viewModel.Color))
                 ColorCollection.Add(_viewModel.Color);
             this.InitializeComponent();
@@ -47,7 +49,7 @@ namespace ActViz.Dialogs
 
         private void comboResidentColor_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (comboResidentColor.SelectedItem != null)
+            if (comboResidentColor.SelectedItem == null)
             {
                 IsPrimaryButtonEnabled = false;
             }
@@ -59,7 +61,7 @@ namespace ActViz.Dialogs
 
         private void txtResidentName_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (txtResidentName.Text == "")
+            if (txtResidentName.Text == "" || _existingResidentNames.Contains(txtResidentName.Text))
             {
                 IsPrimaryButtonEnabled = false;
             }

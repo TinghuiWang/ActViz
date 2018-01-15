@@ -33,10 +33,11 @@
                    Margin="0,5,10,5" VerticalAlignment="Center">
             Activity Name:
         </TextBlock>
-        <TextBox x:Name="txtNameAddSensor" 
+        <TextBox x:Name="txtActivityName" 
                  Grid.Column="1" Grid.Row="0" Margin="0,5" 
                  HorizontalAlignment="Stretch" IsReadOnly="False" 
-                 Text="{x:Bind _activityViewModel.Name, Mode=TwoWay}"></TextBox>
+                 Text="{x:Bind _activityViewModel.Name, Mode=TwoWay}"
+                 TextChanged="txtActivityName_TextChanged"></TextBox>
         <TextBlock Grid.Column="0" Grid.Row="1" Margin="0,5,10,5" VerticalAlignment="Center">Activity Color:</TextBlock>
         <ComboBox x:Name="comboActivityColor"                          
                   Grid.Column="1"
