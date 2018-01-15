@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Storage;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -39,10 +40,24 @@ namespace ActViz.Pages
             base.OnNavigatedTo(e);
         }
 
+        private void PageBusy(string message)
+        {
+            ((Window.Current.Content as Frame).Content as MainPage).PageBusy(message);
+        }
+
+        private void PageReady()
+        {
+            ((Window.Current.Content as Frame).Content as MainPage).PageReady();
+        }
+
         private async void btnAddActivity_ClickAsync(object sender, RoutedEventArgs e)
         {
-            // TODO: Add additional check for duplicated activity names
-            AddActivityDialog dlg = new AddActivityDialog()
+            HashSet<string> existingActivityNames = new HashSet<string>();
+            foreach (ActivityViewModel activity in _viewModel.ActivityCollectionView)
+            {
+                existingActivityNames.Add(activity.Name);
+            }
+            AddActivityDialog dlg = new AddActivityDialog(existingActivityNames)
             {
                 Width = Window.Current.Bounds.Width * 0.8
             };
@@ -55,14 +70,44 @@ namespace ActViz.Pages
 
         private async void btnModifyActivity_ClickAsync(object sender, RoutedEventArgs e)
         {
-            EditActivityDialog dlg = new EditActivityDialog(_viewModel.ActivitySelected)
+            string oldName = _viewModel.ActivitySelected.Name;
+            HashSet<string> existingActivityNames= new HashSet<string>();
+            foreach (ActivityViewModel activity in _viewModel.ActivityCollectionView)
+            {
+                if (activity != _viewModel.ActivitySelected)
+                {
+                    existingActivityNames.Add(activity.Name);
+                }
+            }
+            EditActivityDialog dlg = new EditActivityDialog(_viewModel.ActivitySelected, existingActivityNames)
             {
                 Width = Window.Current.Bounds.Width * 0.8
             };
             var result = await dlg.ShowAsync();
             if (result == ContentDialogResult.Primary)
             {
+
+                PageBusy("Updating residents...");
+                if (_viewModel.ActivitySelected.Name != oldName)
+                {
+                    // Search event and rename previus tags.
+                    var fileList = await ((Dataset)_viewModel).Folder.GetFilesAsync();
+                    foreach (StorageFile file in fileList)
+                    {
+                        if (file.FileType == ".csv")
+                        {
+                            IList<string> fileContent = await FileIO.ReadLinesAsync(file);
+                            List<string> newFileContent = new List<string>();
+                            foreach (string eventString in fileContent)
+                            {
+                                newFileContent.Add(eventString.Replace("," + oldName + ",", "," + _viewModel.ActivitySelected.Name + ","));
+                            }
+                            await FileIO.WriteLinesAsync(file, newFileContent);
+                        }
+                    }
+                }
                 await _viewModel.SaveMetadataAsync();
+                PageReady();
             }
         }
 
@@ -77,13 +122,34 @@ namespace ActViz.Pages
             var result = await dlg.ShowAsync();
             if (result.Label == "Yes")
             {
+                PageBusy("Remove activity " + _viewModel.ActivitySelected.Name + "...");
+                var fileList = await ((Dataset)_viewModel).Folder.GetFilesAsync();
+                foreach (StorageFile file in fileList)
+                {
+                    if (file.FileType == ".csv")
+                    {
+                        IList<string> fileContent = await FileIO.ReadLinesAsync(file);
+                        List<string> newFileContent = new List<string>();
+                        foreach (string eventString in fileContent)
+                        {
+                            newFileContent.Add(eventString.Replace("," + _viewModel.ActivitySelected.Name + ",", ",,"));
+                        }
+                        await FileIO.WriteLinesAsync(file, newFileContent);
+                    }
+                }
                 await _viewModel.RemoveActivityAsync(_viewModel.ActivitySelected);
+                PageReady();
             }
         }
 
         private async void btnAddResident_ClickAsync(object sender, RoutedEventArgs e)
         {
-            AddResidentDialog dlg = new AddResidentDialog()
+            HashSet<string> existingResidentNames = new HashSet<string>();
+            foreach (ResidentViewModel resident in _viewModel.ResidentCollectionView)
+            {
+                existingResidentNames.Add(resident.Name);
+            }
+            AddResidentDialog dlg = new AddResidentDialog(existingResidentNames)
             {
                 Width = Window.Current.Bounds.Width * 0.8
             };
@@ -96,14 +162,43 @@ namespace ActViz.Pages
 
         private async void btnModifyResident_ClickAsync(object sender, RoutedEventArgs e)
         {
-            EditResidentDialog dlg = new EditResidentDialog(_viewModel.ResidentSelected)
+            string oldName = _viewModel.ResidentSelected.Name;
+            HashSet<string> existingResidentNames = new HashSet<string>();
+            foreach(ResidentViewModel resident in _viewModel.ResidentCollectionView)
+            {
+                if(resident != _viewModel.ResidentSelected)
+                {
+                    existingResidentNames.Add(resident.Name);
+                }
+            }
+            EditResidentDialog dlg = new EditResidentDialog(_viewModel.ResidentSelected, existingResidentNames)
             {
                 Width = Window.Current.Bounds.Width * 0.8
             };
             var result = await dlg.ShowAsync();
             if (result == ContentDialogResult.Primary)
             {
+                PageBusy("Updating residents...");
+                if(_viewModel.ResidentSelected.Name != oldName)
+                {
+                    // Search event and rename previus tags.
+                    var fileList = await ((Dataset)_viewModel).Folder.GetFilesAsync();
+                    foreach(StorageFile file in fileList)
+                    {
+                        if(file.FileType == ".csv")
+                        {
+                            IList<string> fileContent = await FileIO.ReadLinesAsync(file);
+                            List<string> newFileContent = new List<string>();
+                            foreach(string eventString in fileContent)
+                            {
+                                newFileContent.Add(eventString.Replace("," + oldName + ",", "," + _viewModel.ResidentSelected.Name + ","));
+                            }
+                            await FileIO.WriteLinesAsync(file, newFileContent);
+                        }
+                    }
+                }
                 await _viewModel.SaveMetadataAsync();
+                PageReady();
             }
         }
 
@@ -118,7 +213,24 @@ namespace ActViz.Pages
             var result = await dlg.ShowAsync();
             if (result.Label == "Yes")
             {
+                PageBusy("Remove resident " + _viewModel.ResidentSelected.Name + "...");
+                // Search event and rename previus tags.
+                var fileList = await ((Dataset)_viewModel).Folder.GetFilesAsync();
+                foreach (StorageFile file in fileList)
+                {
+                    if (file.FileType == ".csv")
+                    {
+                        IList<string> fileContent = await FileIO.ReadLinesAsync(file);
+                        List<string> newFileContent = new List<string>();
+                        foreach (string eventString in fileContent)
+                        {
+                            newFileContent.Add(eventString.Replace("," + _viewModel.ResidentSelected.Name + ",", ",,"));
+                        }
+                        await FileIO.WriteLinesAsync(file, newFileContent);
+                    }
+                }
                 await _viewModel.RemoveResidentAsync(_viewModel.ResidentSelected);
+                PageReady();
             }
         }
     }
