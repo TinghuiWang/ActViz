@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2006
+VisualStudioVersion = 15.0.27004.2009
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ActViz", "ActViz\ActViz.csproj", "{857748F9-875B-46D8-9F28-3FB605BD447D}"
 EndProject
@@ -18,6 +18,8 @@ Global
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{857748F9-875B-46D8-9F28-3FB605BD447D}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{857748F9-875B-46D8-9F28-3FB605BD447D}.Debug|Any CPU.Build.0 = Debug|x86
+		{857748F9-875B-46D8-9F28-3FB605BD447D}.Debug|Any CPU.Deploy.0 = Debug|x86
 		{857748F9-875B-46D8-9F28-3FB605BD447D}.Debug|ARM.ActiveCfg = Debug|ARM
 		{857748F9-875B-46D8-9F28-3FB605BD447D}.Debug|ARM.Build.0 = Debug|ARM
 		{857748F9-875B-46D8-9F28-3FB605BD447D}.Debug|ARM.Deploy.0 = Debug|ARM
