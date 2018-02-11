@@ -21,5 +21,12 @@ namespace ActViz.Services
                 return defaultValue;
             }
         }
+
+        public static T AddToSettings<T>(string key, T value, ApplicationDataContainer localSettings = null)
+        {
+            if (localSettings == null) localSettings = ApplicationData.Current.LocalSettings;
+            localSettings.Values[key] = value;
+            return value;
+        }
     }
 }

@@ -133,6 +133,7 @@
     </Compile>
     <Compile Include="Models\Activity.cs" />
     <Compile Include="Models\Dataset.cs" />
+    <Compile Include="Models\DatasetViewSavedState.cs" />
     <Compile Include="Models\Resident.cs" />
     <Compile Include="Models\Sensor.cs" />
     <Compile Include="Models\SensorEvent.cs" />

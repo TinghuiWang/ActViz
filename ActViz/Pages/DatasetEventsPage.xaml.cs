@@ -2,14 +2,17 @@
 using ActViz.Models;
 using ActViz.Services;
 using ActViz.ViewModels;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
+using Windows.ApplicationModel;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Storage;
 using Windows.UI;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
@@ -44,6 +47,9 @@ namespace ActViz.Pages
         MenuFlyout annotateFlyout = new MenuFlyout();
         private List<Line> residentPathLineList = new List<Line>();
 
+        // Suspending Handler
+        private SuspendingEventHandler _appSuspendHandler;
+
         public DatasetEventsPage()
         {
             this.InitializeComponent();
@@ -56,7 +62,31 @@ namespace ActViz.Pages
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             _viewModel = new DatasetEventsViewModel(e.Parameter as Dataset);
+            _appSuspendHandler = new SuspendingEventHandler(App_Suspending);
+            Application.Current.Suspending += _appSuspendHandler;
             base.OnNavigatedTo(e);
+        }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            Application.Current.Suspending -= _appSuspendHandler;
+            base.OnNavigatedFrom(e);
+        }
+
+        private void App_Suspending(object sender, SuspendingEventArgs e)
+        {
+            AppSettingsService.AddToSettings<string>("WorkingDataset", _viewModel.Dataset.Name);
+            ApplicationDataCompositeValue datasetLastSavedStates =
+                AppSettingsService.RetrieveFromSettings<ApplicationDataCompositeValue>(
+                    "DatasetLastSavedStates", new ApplicationDataCompositeValue()
+                    );
+            datasetLastSavedStates[_viewModel.Dataset.Name] = JsonConvert.SerializeObject(new DatasetViewSavedState
+            {
+                Day = _viewModel.CurrentDate,
+                EventInView = dataListView.SelectedIndex,
+                Filter = _viewModel.EventViewFilter
+            });
+            AppSettingsService.AddToSettings<ApplicationDataCompositeValue>("DatasetLastSavedStates", datasetLastSavedStates);
         }
 
         private async void Page_LoadedAsync(object sender, RoutedEventArgs e)
@@ -66,6 +96,26 @@ namespace ActViz.Pages
             PopulateSensors();
             DrawSensors();
             populateAnnotateFlyout();
+            // Check Application Settings for last saved states. If the state exists and is valid, load the state
+            ApplicationDataCompositeValue datasetLastSavedStates =
+                AppSettingsService.RetrieveFromSettings<ApplicationDataCompositeValue>(
+                    "DatasetLastSavedStates", new ApplicationDataCompositeValue()
+                    );
+            if(datasetLastSavedStates.TryGetValue(_viewModel.Dataset.Name, out object jsonDatasetSavedState))
+            {
+                DatasetViewSavedState datasetState = JsonConvert.DeserializeObject<DatasetViewSavedState>((string)jsonDatasetSavedState);
+                if(datasetState.Day <= _viewModel.LastEventDate && datasetState.Day >= _viewModel.FirstEventDate)
+                {
+                    await _viewModel.LoadEventsAsync(datasetState.Day);
+                }
+                _viewModel.EventViewFilter = datasetState.Filter;
+                _viewModel.RefreshEventsInView();
+                if(datasetState.EventInView >= 0 && datasetState.EventInView < _viewModel.EventsInView.Count)
+                {
+                    _viewModel.SelectedSensorEvent = (SensorEventViewModel) dataListView.Items[datasetState.EventInView];
+                }
+                dataListView.ScrollIntoView(_viewModel.SelectedSensorEvent);
+            }
             PageReady();
         }
 

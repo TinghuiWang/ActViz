@@ -1,5 +1,7 @@
 ﻿using ActViz.Helpers;
+using ActViz.Models;
 using ActViz.Pages;
+using ActViz.Services;
 using ActViz.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -12,6 +14,7 @@ using Windows.Foundation.Collections;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.UI;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -63,13 +66,29 @@ namespace ActViz
             this.InitializeComponent();
         }
 
-        private void Page_Loaded(object sender, RoutedEventArgs e)
+        private async void Page_LoadedAsync(object sender, RoutedEventArgs e)
         {
             _viewModel.appLog.Info(this.GetType().ToString(), "MainPage Loaded.");
             CoreApplicationViewTitleBar titleBar = CoreApplication.GetCurrentView().TitleBar;
             titleBar.LayoutMetricsChanged += TitleBar_LayoutMetricsChanged;
             BackToEmpty();
             navigationViewItemForegroundDefault = navigationViewItemDatasets.Foreground;
+            string lastDataset = AppSettingsService.RetrieveFromSettings<string>("WorkingDataset", "");
+            if(lastDataset != "")
+            {
+                List<Site> siteList = await LocalMetadataService.LoadSitesAsync();
+                List<Dataset> datasetList = await LocalMetadataService.LoadDatasetsAsync(siteList);
+                Dataset dataset = datasetList.Find(x => x.Name == lastDataset);
+                if (dataset == null) return;
+                MessageDialog dlg = new MessageDialog("Do you want to load dataset " + lastDataset + " ?", "Load Dataset");
+                dlg.Commands.Add(new UICommand("Yes"));
+                dlg.Commands.Add(new UICommand("No"));
+                IUICommand selectedCmd = await dlg.ShowAsync();
+                if (selectedCmd.Label == "Yes")
+                {
+                    MainFrameNavigate(typeof(DatasetViewPage), dataset);
+                }
+            }
         }
 
         private void TitleBar_LayoutMetricsChanged(CoreApplicationViewTitleBar sender, object args)
