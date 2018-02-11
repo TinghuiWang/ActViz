@@ -16,6 +16,7 @@
 
     <ContentDialog.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" TrueValue="Visible" FalseValue="Collapsed" />
+        <converters:BoolNegationConverter x:Key="BoolNegationConverter" />
     </ContentDialog.Resources>
     
     <ScrollViewer Padding="10" VerticalScrollBarVisibility="Auto">
@@ -25,6 +26,8 @@
                 <ColumnDefinition Width="150"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -59,8 +62,8 @@
                                        VerticalAlignment="Center"
                                        Text="{x:Bind SensorStatus}"/>
                             <ToggleSwitch Grid.Column="1"
-                                          OnContent="Hide" OffContent="Show"
-                                          IsOn="{x:Bind IsHidden, Mode=TwoWay}"
+                                          OnContent="Show" OffContent="Hidden"
+                                          IsOn="{x:Bind IsHidden, Mode=TwoWay, Converter={StaticResource BoolNegationConverter}}"
                                           FlowDirection="RightToLeft"
                                           Margin="0" Padding="0"/>
                         </Grid>
@@ -103,8 +106,8 @@
                                        VerticalAlignment="Center"
                                        Text="{x:Bind SensorCategory.Name}"/>
                             <ToggleSwitch Grid.Column="2"
-                                          OnContent="Hide" OffContent="Show"
-                                          IsOn="{x:Bind IsHidden, Mode=TwoWay}"
+                                          OnContent="Show" OffContent="Hidden"
+                                          IsOn="{x:Bind IsHidden, Mode=TwoWay, Converter={StaticResource BoolNegationConverter}}"
                                           FlowDirection="RightToLeft"
                                           Margin="0" Padding="0"/>
                         </Grid>
@@ -125,7 +128,18 @@
                           Margin="0" Padding="0"
                           Grid.Row="4" Grid.Column="1"
                           IsOn="{x:Bind _viewModel.IsActivityFilterEnabled, Mode=TwoWay}"/>
-            <ListView Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2"
+            <TextBlock Text="Events without activity tags"
+                       Grid.Row="5" Grid.Column="0"
+                       VerticalAlignment="Center"
+                       Visibility="{x:Bind _viewModel.IsActivityFilterEnabled, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <ToggleSwitch OnContent="Show" OffContent="Hide"
+                          FlowDirection="RightToLeft"
+                          HorizontalAlignment="Right"
+                          Margin="0" Padding="0"
+                          Grid.Row="5" Grid.Column="1"
+                          IsOn="{x:Bind _viewModel.IsNullActivityVisible, Mode=TwoWay}"
+                          Visibility="{x:Bind _viewModel.IsActivityFilterEnabled, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <ListView Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2"
                       BorderBrush="Gray" BorderThickness="1" Margin="0, 5"
                       SelectionMode="None"
                       Visibility="{x:Bind _viewModel.IsActivityFilterEnabled, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
@@ -149,8 +163,8 @@
                                        VerticalAlignment="Center"
                                        Text="{x:Bind Activity.Name}"/>
                             <ToggleSwitch Grid.Column="2"
-                                          OnContent="Hide" OffContent="Show"
-                                          IsOn="{x:Bind IsHidden, Mode=TwoWay}"
+                                          OnContent="Show" OffContent="Hidden"
+                                          IsOn="{x:Bind IsHidden, Mode=TwoWay, Converter={StaticResource BoolNegationConverter}}"
                                           FlowDirection="RightToLeft"
                                           Margin="0" Padding="0"/>
                         </Grid>
@@ -163,15 +177,26 @@
                 </ListView.ItemContainerStyle>
             </ListView>
             <TextBlock Text="Resident Filter"
-                       Grid.Row="6" Grid.Column="0"
+                       Grid.Row="7" Grid.Column="0"
                        VerticalAlignment="Center"/>
             <ToggleSwitch OnContent="Enable" OffContent="Disable"
                           FlowDirection="RightToLeft"
                           HorizontalAlignment="Right"
                           Margin="0" Padding="0"
-                          Grid.Row="6" Grid.Column="1"
+                          Grid.Row="7" Grid.Column="1"
                           IsOn="{x:Bind _viewModel.IsResidentFilterEnabled, Mode=TwoWay}"/>
-            <ListView Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2"
+            <TextBlock Text="Events without resident tag"
+                       Grid.Row="8" Grid.Column="0"
+                       VerticalAlignment="Center"
+                       Visibility="{x:Bind _viewModel.IsResidentFilterEnabled, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <ToggleSwitch OnContent="Show" OffContent="Hide"
+                          FlowDirection="RightToLeft"
+                          HorizontalAlignment="Right"
+                          Margin="0" Padding="0"
+                          Grid.Row="8" Grid.Column="1"
+                          IsOn="{x:Bind _viewModel.IsNullResidentVisible, Mode=TwoWay}"
+                          Visibility="{x:Bind _viewModel.IsResidentFilterEnabled, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <ListView Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2"
                       BorderBrush="Gray" BorderThickness="1" Margin="0, 5"
                       SelectionMode="None"
                       Visibility="{x:Bind _viewModel.IsResidentFilterEnabled, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
@@ -195,8 +220,8 @@
                                        VerticalAlignment="Center"
                                        Text="{x:Bind Resident.Name}"/>
                             <ToggleSwitch Grid.Column="2"
-                                          OnContent="Hide" OffContent="Show"
-                                          IsOn="{x:Bind IsHidden, Mode=TwoWay}"
+                                          OnContent="Show" OffContent="Hide"
+                                          IsOn="{x:Bind IsHidden, Mode=TwoWay, Converter={StaticResource BoolNegationConverter}}"
                                           FlowDirection="RightToLeft"
                                           Margin="0" Padding="0"/>
                         </Grid>

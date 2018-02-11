@@ -38,6 +38,13 @@ namespace ActViz.ViewModels
             set { SetProperty(ref _isActivityFilterEnabled, value); }
         }
 
+        private bool _isNullActivityVisible = true;
+        public bool IsNullActivityVisible
+        {
+            get { return _isNullActivityVisible; }
+            set { SetProperty(ref _isNullActivityVisible, value); }
+        }
+
         public ObservableCollection<ActivityFilterViewModel> ActivityFilter = new ObservableCollection<ActivityFilterViewModel>();
 
         private bool _isResidentFilterEnabled = false;
@@ -45,6 +52,13 @@ namespace ActViz.ViewModels
         {
             get { return _isResidentFilterEnabled; }
             set { SetProperty(ref _isResidentFilterEnabled, value); }
+        }
+
+        private bool _isNullResidentVisible = true;
+        public bool IsNullResidentVisible
+        {
+            get { return _isNullResidentVisible; }
+            set { SetProperty(ref _isNullResidentVisible, value); }
         }
 
         public ObservableCollection<ResidentFilterViewModel> ResidentFilter = new ObservableCollection<ResidentFilterViewModel>();
@@ -76,6 +90,11 @@ namespace ActViz.ViewModels
                 ResidentFilter.Add(new ResidentFilterViewModel { Resident = resident, IsHidden = filter.Residents.Contains(resident.Name) });
                 if (filter.Residents.Contains(resident.Name)) IsResidentFilterEnabled = true;
             }
+            // For events without activity tag or resident tag
+            IsNullActivityVisible = !filter.HideEventsWithoutActivity;
+            IsNullResidentVisible = !filter.HideEventsWithoutResident;
+            IsActivityFilterEnabled = IsActivityFilterEnabled || filter.HideEventsWithoutActivity;
+            IsResidentFilterEnabled = IsResidentFilterEnabled || filter.HideEventsWithoutResident;
         }
 
         public void UpdateFilter()
@@ -112,6 +131,8 @@ namespace ActViz.ViewModels
                     if (residentFilterEntry.IsHidden) _filter.Residents.Add(residentFilterEntry.Resident.Name);
                 }
             }
+            _filter.HideEventsWithoutActivity = !IsNullActivityVisible;
+            _filter.HideEventsWithoutResident = !IsNullResidentVisible;
         }
     }
 

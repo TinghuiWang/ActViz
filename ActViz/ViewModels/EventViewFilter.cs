@@ -12,6 +12,8 @@ namespace ActViz.ViewModels
         public HashSet<string> SensorStatus { get; set; }
         public HashSet<string> Residents { get; set; }
         public HashSet<string> SensorCategories { get; set; }
+        public bool HideEventsWithoutActivity { get; set; }
+        public bool HideEventsWithoutResident { get; set; }
 
         public EventViewFilter()
         {
@@ -19,6 +21,8 @@ namespace ActViz.ViewModels
             SensorStatus = new HashSet<string>();
             Residents = new HashSet<string>();
             SensorCategories = new HashSet<string>();
+            HideEventsWithoutActivity = false;
+            HideEventsWithoutResident = false;
         }
     }
 }

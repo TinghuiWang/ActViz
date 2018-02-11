@@ -229,6 +229,14 @@ namespace ActViz.ViewModels
 
         private bool FilterEvent(SensorEventViewModel sensorEvent)
         {
+            if(EventViewFilter.HideEventsWithoutActivity)
+            {
+                if ((Activity)sensorEvent.Activity == Activity.NullActivity) return true;
+            }
+            if(EventViewFilter.HideEventsWithoutResident)
+            {
+                if ((Resident)sensorEvent.Resident == Resident.NullResident) return true;
+            }
             foreach (string sensorStatus in EventViewFilter.SensorStatus)
             {
                 if (sensorEvent.SensorState == sensorStatus) return true;
