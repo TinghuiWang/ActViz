@@ -1,4 +1,5 @@
 ﻿using ActViz.Dialogs;
+using ActViz.Helpers;
 using ActViz.Models;
 using ActViz.Services;
 using ActViz.ViewModels;
@@ -497,6 +498,119 @@ namespace ActViz.Pages
             await _viewModel.SaveEventsAsync();
             _viewModel.IsEventsModified = false;
             PageReady();
+        }
+
+        private async void MenuExport_ClickAsync(object sender, RoutedEventArgs e)
+        {
+            // Check and see if there are unsaved changes
+            if(_viewModel.IsEventsModified)
+            {
+                await ClosePageAsync();
+            }
+            DatasetExportDialog dialog = new DatasetExportDialog(_viewModel);
+            var result = await dialog.ShowAsync();
+            if(result == ContentDialogResult.Primary)
+            {
+                StorageFolder folder = dialog.ExportFolder;
+                DatasetExportViewModel datasetExportConfig = dialog.DatasetExportConfiguration;
+                if(datasetExportConfig.ExportInCSV)
+                {
+                    // Dataset exported in csv events, where metadata about the dataset is stored in json file.
+                    StorageFolder targetDatasetFolder;
+                    try
+                    {
+                        targetDatasetFolder = await folder.GetFolderAsync(datasetExportConfig.DatasetName);
+                        string message = "A folder named " + datasetExportConfig.DatasetName + " already existed at " + folder.Path + ". Do you want to overwrite?";
+                        var dlg = new MessageDialog(message, "Overwrite Folder?");
+                        UICommand yesCmd = new UICommand("Yes");
+                        UICommand cancelCmd = new UICommand("Cancel");
+                        dlg.Commands.Add(yesCmd);
+                        dlg.Commands.Add(cancelCmd);
+                        dlg.DefaultCommandIndex = 1;
+                        dlg.CancelCommandIndex = 1;
+                        var cmd = await dlg.ShowAsync();
+                        if (cmd == cancelCmd) return;
+                    }
+                    catch (Exception)
+                    { }
+                    targetDatasetFolder = await folder.CreateFolderAsync(datasetExportConfig.DatasetName, CreationCollisionOption.ReplaceExisting);
+                    PageBusy(string.Format("Exporting dataset {0} to folder {1}", datasetExportConfig.DatasetName, targetDatasetFolder.Path));
+                    if(datasetExportConfig.ExportDateSelectionEnabled)
+                    {
+                        // Copy all files
+                        foreach (var datasetFile in await _viewModel.Dataset.Folder.GetFilesAsync())
+                        {
+                            if (datasetFile.FileType == ".csv")
+                            {
+                                List<string> eventStringList = new List<string>();
+                                // Open file, read each line, parse the time. If the time is inbetween the start date and stop date, write the line back to file.
+                                using (var inputStream = await datasetFile.OpenReadAsync())
+                                using (var classicStream = inputStream.AsStreamForRead())
+                                using (var streamReader = new StreamReader(classicStream))
+                                {
+                                    int lineNo = 0;
+                                    while (streamReader.Peek() >= 0)
+                                    {
+                                        string curEventString = streamReader.ReadLine();
+                                        if (string.IsNullOrWhiteSpace(curEventString)) continue;
+                                        try
+                                        {
+                                            string [] tokenList = curEventString.Split(new char[] { ',' });
+                                            // Get the Date of the String and add to dictionary
+                                            DateTimeOffset curEventTimeTag = DateTimeOffset.Parse(tokenList[0]);
+                                            if(curEventTimeTag.Date >= datasetExportConfig.ExportStartDate && curEventTimeTag.Date <= datasetExportConfig.ExportStopDate)
+                                            {
+                                                eventStringList.Add(curEventString);
+                                            }
+                                            if (curEventTimeTag.Date > datasetExportConfig.ExportStopDate) break;
+                                            lineNo++;
+                                        }
+                                        catch (Exception except)
+                                        {
+                                            Logger.Instance.Error(this.GetType().Name, string.Format("Failed at line {0} with error message {1}", lineNo, except.Message));
+                                        }
+                                    }
+                                }
+                                StorageFile newDatasetFile = await targetDatasetFolder.CreateFileAsync(datasetFile.Name, CreationCollisionOption.ReplaceExisting);
+                                using (var outputStream = await newDatasetFile.OpenAsync(FileAccessMode.ReadWrite))
+                                using (var classicStream = outputStream.AsStreamForWrite())
+                                using (var streamWriter = new StreamWriter(classicStream))
+                                {
+                                    foreach (string eventString in eventStringList)
+                                        streamWriter.WriteLine(eventString);
+                                }
+                            }
+                            else if (datasetFile.FileType == ".json")
+                            {
+                                await datasetFile.CopyAsync(targetDatasetFolder, datasetFile.Name, NameCollisionOption.ReplaceExisting);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Copy all files
+                        foreach (var datasetFile in await _viewModel.Dataset.Folder.GetFilesAsync())
+                        {
+                            await datasetFile.CopyAsync(targetDatasetFolder, datasetFile.Name, NameCollisionOption.ReplaceExisting);
+                        }
+                    }
+                    // Change name of the copied metadata file
+                    if(datasetExportConfig.DatasetRenameEnabled)
+                    {
+                        Dataset dataset = await Dataset.LoadMetadataFromFolderAsync(targetDatasetFolder);
+                        dataset.Name = datasetExportConfig.DatasetName;
+                        await dataset.WriteMetadataToFolderAsync();
+                    }
+                    PageReady();
+                    return;
+                }
+                if(datasetExportConfig.ExportInTxt)
+                {
+                    // For backward compatibility, one can export the dataset in old-style txt format.
+                    // Note that txt formatted dataset cannot be loaded by this program again.
+                    return;
+                }
+            }
         }
     }
 }

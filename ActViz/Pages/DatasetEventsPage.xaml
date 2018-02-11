@@ -170,6 +170,11 @@
                                 <FontIcon Glyph="&#xE71C;" />
                             </MenuFlyoutItem.Icon>
                         </MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Export" Click="MenuExport_ClickAsync">
+                            <MenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xEDE1;" />
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
                         <MenuFlyoutItem Text="Configure" Click="menuConfig_ClickAsync">
                             <MenuFlyoutItem.Icon>
                                 <FontIcon Glyph="&#xE713;" />

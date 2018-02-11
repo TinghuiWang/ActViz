@@ -1,0 +1,91 @@
+﻿<ContentDialog
+    x:Class="ActViz.Dialogs.DatasetExportDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ActViz.Dialogs"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:Microsoft.Toolkit.Uwp.UI.Converters"
+    mc:Ignorable="d"
+    Title="Export Dataset"
+    PrimaryButtonText="Export"
+    SecondaryButtonText="Cancel"
+    IsPrimaryButtonEnabled="False"
+    PrimaryButtonClick="DatasetExportDialog_ExportButtonClick"
+    SecondaryButtonClick="DatasetExportDialog_CancelButtonClick">
+
+    <ContentDialog.Resources>
+        <converters:BoolNegationConverter x:Key="BoolNegationConverter"></converters:BoolNegationConverter>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"></converters:BoolToVisibilityConverter>
+    </ContentDialog.Resources>
+    
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <CheckBox Grid.Row="0" Grid.Column="0" Margin="5"
+                  VerticalAlignment="Center"
+                  Content="Rename Dataset:"
+                  IsChecked="{x:Bind _viewModel.DatasetRenameEnabled, Mode=TwoWay}"/>
+        <TextBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Margin="5"
+                 VerticalAlignment="Center"
+                 x:Name="tbDatasetRename"
+                 Text="{x:Bind _viewModel.DatasetName, Mode=TwoWay}"
+                 IsReadOnly="{x:Bind _viewModel.DatasetRenameEnabled, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"></TextBox>
+        <TextBlock Grid.Row="1" Grid.Column="0" Margin="5"
+                   VerticalAlignment="Center"
+                   Text="Export To:" />
+        <TextBox Grid.Row="1" Grid.Column="1" Margin="5"
+                 VerticalAlignment="Center"
+                 x:Name="tbExportPath"
+                 IsReadOnly="True"></TextBox>
+        <Button Grid.Row="1" Grid.Column="2" Margin="5"
+                VerticalAlignment="Center"
+                x:Name="btnExportPathSelect"
+                Content="..."
+                Click="BtnExportPathSelect_ClickAsync" />
+        <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="5"
+                   Text="Dataset Export Format"/>
+        <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3"
+                    Margin="5" Orientation="Vertical">
+            <RadioButton Content="CSV Format" GroupName="ExportFormat"
+                         IsChecked="{x:Bind _viewModel.ExportInCSV, Mode=TwoWay}"></RadioButton>
+            <RadioButton Content="Text Format" GroupName="ExportFormat"
+                         IsChecked="{x:Bind _viewModel.ExportInTxt, Mode=TwoWay}"></RadioButton>
+        </StackPanel>
+        <CheckBox Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Margin="5"
+                  Content="Export events in the time range specified below"
+                  IsChecked="{x:Bind _viewModel.ExportDateSelectionEnabled, Mode=TwoWay}"/>
+        <TextBlock Grid.Row="5" Grid.Column="0" Margin="5"
+                   VerticalAlignment="Center"
+                   Text="Start Date:"
+                   Visibility="{x:Bind _viewModel.ExportDateSelectionEnabled, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+        <CalendarDatePicker Grid.Row="5" Grid.Column="1" Margin="5"
+                            x:Name="datePickerStartDate"
+                            VerticalAlignment="Center"
+                            Date="{x:Bind _viewModel.ExportStartDate, Mode=TwoWay}"
+                            DateChanged="datePickerStartDate_DateChanged"
+                            Visibility="{x:Bind _viewModel.ExportDateSelectionEnabled, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+        <TextBlock Grid.Row="6" Grid.Column="0" Margin="5"
+                   VerticalAlignment="Center"
+                   Text="Stop Date:"
+                   Visibility="{x:Bind _viewModel.ExportDateSelectionEnabled, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+        <CalendarDatePicker Grid.Row="6" Grid.Column="1" Margin="5"
+                            x:Name="datePickerStopDate"
+                            VerticalAlignment="Center"
+                            Date="{x:Bind _viewModel.ExportStopDate, Mode=TwoWay}"
+                            DateChanged="datePickerStopDate_DateChanged"
+                            Visibility="{x:Bind _viewModel.ExportDateSelectionEnabled, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+    </Grid>
+</ContentDialog>

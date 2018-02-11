@@ -115,6 +115,9 @@
     <Compile Include="Dialogs\DatasetEventFilterDialog.xaml.cs">
       <DependentUpon>DatasetEventFilterDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\DatasetExportDialog.xaml.cs">
+      <DependentUpon>DatasetExportDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\EditActivityDialog.xaml.cs">
       <DependentUpon>EditActivityDialog.xaml</DependentUpon>
     </Compile>
@@ -172,6 +175,7 @@
     <Compile Include="ViewModels\DatabaseImportViewModel.cs" />
     <Compile Include="ViewModels\DatasetEventFilterDialogViewModel.cs" />
     <Compile Include="ViewModels\DatasetEventsViewModel.cs" />
+    <Compile Include="ViewModels\DatasetExportViewModel.cs" />
     <Compile Include="ViewModels\DatasetSelectionViewModel.cs" />
     <Compile Include="ViewModels\DatasetViewModel.cs" />
     <Compile Include="ViewModels\EventOffset.cs" />
@@ -222,6 +226,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialogs\DatasetEventFilterDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\DatasetExportDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
