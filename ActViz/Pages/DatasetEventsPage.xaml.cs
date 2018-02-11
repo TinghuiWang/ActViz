@@ -440,5 +440,13 @@ namespace ActViz.Pages
         {
             ((Window.Current.Content as Frame).Content as MainPage).PageReady();
         }
+
+        private async void BtnSaveDataset_ClickAsync(object sender, RoutedEventArgs e)
+        {
+            PageBusy("Save events to dataset " + _viewModel.Dataset.Name);
+            await _viewModel.SaveEventsAsync();
+            _viewModel.IsEventsModified = false;
+            PageReady();
+        }
     }
 }

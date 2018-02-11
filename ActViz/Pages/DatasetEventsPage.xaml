@@ -110,6 +110,7 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
@@ -118,8 +119,14 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" x:Name="btnSaveDataset" 
+                    FontFamily="Segoe MDL2 Assets" Content="&#xE74E;" 
+                    Margin="5" VerticalAlignment="Center" 
+                    ToolTipService.ToolTip="Previous Week" 
+                    IsEnabled="{x:Bind _viewModel.IsEventsModified, Mode=OneWay}"
+                    Click="BtnSaveDataset_ClickAsync"></Button>
             <CalendarDatePicker 
-                Grid.Column="0" 
+                Grid.Column="1" 
                 x:Name="EventDatePicker" 
                 VerticalAlignment="Center" 
                 Margin="20,0,0,0" 
@@ -127,35 +134,35 @@
                 Date="{x:Bind _viewModel.CurrentDate, Mode=OneWay}"
                 MinDate="{x:Bind _viewModel.FirstEventDate, Mode=OneWay}"
                 MaxDate="{x:Bind _viewModel.LastEventDate, Mode=OneWay}"/>
-            <Button Grid.Column="1" x:Name="btnPrevWeek" 
+            <Button Grid.Column="2" x:Name="btnPrevWeek" 
                     FontFamily="Segoe MDL2 Assets" Content="&#xE892;" 
                     Margin="5" VerticalAlignment="Center" 
                     ToolTipService.ToolTip="Previous Week" 
                     Click="btnPrevWeek_ClickAsync"></Button>
-            <Button Grid.Column="2" x:Name="btnPrevDay" 
+            <Button Grid.Column="3" x:Name="btnPrevDay" 
                     FontFamily="Segoe MDL2 Assets" Content="&#xEB9E;" 
                     Margin="5" VerticalAlignment="Center"
                     ToolTipService.ToolTip="Yesterday" 
                     Click="btnPrevDay_ClickAsync"></Button>
-            <localcontrols:DateSlider Grid.Column="3" x:Name="DateSlider" VerticalAlignment="Center" ValueChangeCompleted="DateSlider_ValueChangeCompleted"></localcontrols:DateSlider>
-            <StackPanel Orientation="Horizontal" Grid.Column="4" VerticalAlignment="Center">
+            <localcontrols:DateSlider Grid.Column="4" x:Name="DateSlider" VerticalAlignment="Center" ValueChangeCompleted="DateSlider_ValueChangeCompleted"></localcontrols:DateSlider>
+            <StackPanel Orientation="Horizontal" Grid.Column="5" VerticalAlignment="Center">
                 <TextBlock Text="{Binding ElementName=DateSlider, Path=Value}" Width="30" TextAlignment="Center"></TextBlock>
                 <TextBlock Text="/"></TextBlock>
                 <TextBlock Text="{Binding ElementName=DateSlider, Path=Maximum}" Width="30" TextAlignment="Center"></TextBlock>
             </StackPanel>
-            <Button Grid.Column="5" x:Name="btnNextDay" 
+            <Button Grid.Column="6" x:Name="btnNextDay" 
                     FontFamily="Segoe MDL2 Assets" Content="&#xEB9D;" 
                     Margin="5" VerticalAlignment="Center" 
                     ToolTipService.ToolTip="Tomorrow" 
                     Click="btnNextDay_ClickAsync"></Button>
-            <Button Grid.Column="6" x:Name="btnNextWeek" 
+            <Button Grid.Column="7" x:Name="btnNextWeek" 
                     FontFamily="Segoe MDL2 Assets" Content="&#xE893;" 
                     Margin="5" VerticalAlignment="Center" 
                     ToolTipService.ToolTip="Next Week" 
                     Click="btnNextWeek_ClickAsync"></Button>
-            <TextBox Grid.Column="7" x:Name="txtTimeInterval" Margin="5" VerticalAlignment="Center" InputScope="TimeMinutesOrSeconds" ToolTipService.ToolTip="Play Time Interval (s)"/>
-            <Button Grid.Column="8" x:Name="btnPlay" FontFamily="Segoe MDL2 Assets" Content="&#xE768;" Margin="5" VerticalAlignment="Center" ToolTipService.ToolTip="Play"></Button>
-            <Button Grid.Column="9" x:Name="btnMenu" FontFamily="Segoe MDL2 Assets" Content="&#xE712;" Margin="5, 5, 20, 5" VerticalAlignment="Center" ToolTipService.ToolTip="Menu">
+            <TextBox Grid.Column="8" x:Name="txtTimeInterval" Margin="5" VerticalAlignment="Center" InputScope="TimeMinutesOrSeconds" ToolTipService.ToolTip="Play Time Interval (s)"/>
+            <Button Grid.Column="9" x:Name="btnPlay" FontFamily="Segoe MDL2 Assets" Content="&#xE768;" Margin="5" VerticalAlignment="Center" ToolTipService.ToolTip="Play"></Button>
+            <Button Grid.Column="10" x:Name="btnMenu" FontFamily="Segoe MDL2 Assets" Content="&#xE712;" Margin="5, 5, 20, 5" VerticalAlignment="Center" ToolTipService.ToolTip="Menu">
                 <Button.Flyout>
                     <MenuFlyout>
                         <MenuFlyoutItem Text="Filter" Click="menuFilter_ClickAsync">
