@@ -612,5 +612,15 @@ namespace ActViz.Pages
                 }
             }
         }
+
+        private void TbSelectedIndex_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            int selectedId = int.Parse(tbSelectedIndex.Text);
+            if(selectedId >= 0 && selectedId < dataListView.Items.Count)
+            {
+                dataListView.SelectedIndex = selectedId;
+                dataListView.ScrollIntoView(dataListView.Items[selectedId]);
+            }
+        }
     }
 }
