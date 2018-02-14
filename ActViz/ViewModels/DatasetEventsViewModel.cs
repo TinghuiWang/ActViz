@@ -78,6 +78,13 @@ namespace ActViz.ViewModels
             set { SetProperty(ref _isEventsModified, value, "IsEventsModified"); }
         }
 
+        private int _numEventsInView = 0;
+        public int NumEventsInView
+        {
+            get { return _numEventsInView; }
+            set { SetProperty(ref _numEventsInView, value); }
+        }
+
         public int LoadedEventsCount { get { return _eventStringList.Count; } }
 
         private readonly static HashSet<string> SensorStatusStartToken = new HashSet<string> { "ON", "PRESENT", "OPEN" };
@@ -357,6 +364,7 @@ namespace ActViz.ViewModels
                 await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                  {
                      CurrentDate = date;
+                     NumEventsInView = _allEventsInView.Count;
                  });
             }
             else
@@ -430,6 +438,7 @@ namespace ActViz.ViewModels
         internal void RefreshEventsInView()
         {
             EventsInView.Refresh();
+            NumEventsInView = EventsInView.Count;
         }
 
         internal ActivityViewModel GetActivityByName(string name, bool AddIfNotFound = false)

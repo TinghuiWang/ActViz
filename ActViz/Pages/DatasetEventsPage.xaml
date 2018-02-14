@@ -192,7 +192,7 @@
                      TextChanged="TbSelectedIndex_TextChanged"></TextBox>
             <TextBlock Margin="0, 5" Text="/" VerticalAlignment="Center"></TextBlock>
             <TextBlock Margin="5, 5" VerticalAlignment="Center" 
-                       Text="{x:Bind _viewModel.EventsInView.Count, Mode=OneWay}"></TextBlock>
+                       Text="{x:Bind _viewModel.NumEventsInView, Mode=OneWay}"></TextBlock>
         </StackPanel>
     </Grid>
 </Page>
