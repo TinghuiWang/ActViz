@@ -112,7 +112,7 @@ namespace ActViz.ViewModels
             EventsInView = new AdvancedCollectionView(_allEventsInView);
             EventsInView.Filter = x => !FilterEvent((SensorEventViewModel)x);
             // Populate Sensor, Resident and Activity Lookup Dictionary
-            foreach(Sensor sensor in dataset.Site.Sensors)
+            foreach (Sensor sensor in dataset.Site.Sensors)
             {
                 SensorViewModel sensorViewModel = new SensorViewModel(sensor);
                 _sensorViewModelDict.Add(sensor.Name, sensorViewModel);
@@ -121,7 +121,7 @@ namespace ActViz.ViewModels
                 //    _activeSensors.Add(sensorViewModel);
                 //}
             }
-            foreach(Activity activity in dataset.Activities)
+            foreach (Activity activity in dataset.Activities)
             {
                 ActivityViewModel activityViewModel = new ActivityViewModel(activity);
                 _activityViewModelDict.Add(activity.Name, activityViewModel);
@@ -131,7 +131,7 @@ namespace ActViz.ViewModels
             {
                 return x.Name.CompareTo(y.Name);
             });
-            foreach(Resident resident in dataset.Residents)
+            foreach (Resident resident in dataset.Residents)
             {
                 ResidentViewModel residentViewModel = new ResidentViewModel(resident);
                 _residentViewModelDict.Add(resident.Name, residentViewModel);
@@ -236,11 +236,11 @@ namespace ActViz.ViewModels
 
         private bool FilterEvent(SensorEventViewModel sensorEvent)
         {
-            if(EventViewFilter.HideEventsWithoutActivity)
+            if (EventViewFilter.HideEventsWithoutActivity)
             {
                 if ((Activity)sensorEvent.Activity == Activity.NullActivity) return true;
             }
-            if(EventViewFilter.HideEventsWithoutResident)
+            if (EventViewFilter.HideEventsWithoutResident)
             {
                 if ((Resident)sensorEvent.Resident == Resident.NullResident) return true;
             }
@@ -375,10 +375,10 @@ namespace ActViz.ViewModels
 
         internal Dictionary<ResidentViewModel, List<SensorEventViewModel>> GetPastStepsOfResidents(int maxSeconds = 7200, int maxSteps = 1000)
         {
-            Dictionary<ResidentViewModel, List<SensorEventViewModel>> pastStepsOfResidents = 
+            Dictionary<ResidentViewModel, List<SensorEventViewModel>> pastStepsOfResidents =
                 new Dictionary<ResidentViewModel, List<SensorEventViewModel>>();
             if (SelectedSensorEvent == null) return pastStepsOfResidents;
-            Dictionary<ResidentViewModel, HashSet<SensorViewModel>> sensorCheckDictionary = 
+            Dictionary<ResidentViewModel, HashSet<SensorViewModel>> sensorCheckDictionary =
                 new Dictionary<ResidentViewModel, HashSet<SensorViewModel>>();
             foreach (ResidentViewModel resident in Residents)
             {
@@ -414,7 +414,7 @@ namespace ActViz.ViewModels
         internal SensorViewModel GetSensorByName(string name)
         {
             if (!_sensorViewModelDict.TryGetValue(name, out SensorViewModel sensorViewModel))
-            { 
+            {
                 appLog.Warn(GetType().ToString(),
                     string.Format("Sensor {0} not found. Add temporarily to site.", name));
                 Sensor sensor = new Sensor()
@@ -441,7 +441,7 @@ namespace ActViz.ViewModels
             NumEventsInView = EventsInView.Count;
         }
 
-        internal ActivityViewModel GetActivityByName(string name, bool AddIfNotFound = false)
+        internal ActivityViewModel GetActivityByName(string name, bool AddIfNotFound = false, bool cascadeIfNotFound = false)
         {
             if (name == "")
             {
@@ -453,13 +453,22 @@ namespace ActViz.ViewModels
                 {
                     appLog.Warn(GetType().ToString(),
                         string.Format("Activity {0} not found. Add temporarily to dataset.", name));
-                    activityViewModel = new ActivityViewModel(new Activity()
+                    Activity activity;
+                    if (cascadeIfNotFound)
                     {
-                        Name = name,
-                        Color = Colors.Gray.ToString(),
-                        IsIgnored = false,
-                        IsNoise = false
-                    });
+                        activity = Dataset.GetActivity(name, true);
+                    }
+                    else
+                    {
+                        activity = new Activity()
+                        {
+                            Name = name,
+                            Color = Colors.Gray.ToString(),
+                            IsIgnored = false,
+                            IsNoise = false
+                        };
+                    }
+                    activityViewModel = new ActivityViewModel(activity);
                     _activityViewModelDict.Add(name, activityViewModel);
                 }
                 else
@@ -475,7 +484,7 @@ namespace ActViz.ViewModels
         internal ResidentViewModel GetResidentByName(string name, bool AddIfNotFound = false)
         {
             if (name == "") return ResidentViewModel.NullResident;
-            if(!_residentViewModelDict.TryGetValue(name, out ResidentViewModel residentViewModel))
+            if (!_residentViewModelDict.TryGetValue(name, out ResidentViewModel residentViewModel))
             {
                 if (AddIfNotFound)
                 {
@@ -627,6 +636,78 @@ namespace ActViz.ViewModels
             UpdateSensorFireStatus();
             var SensorFireStatusSorted = from entry in _lastFiredSensorStat orderby entry.Value descending select entry;
             return SensorFireStatusSorted.ToList();
+        }
+
+        public async Task ImportAnnotationAsync(StorageFile annotationFile)
+        {
+            using (var inputStream = await annotationFile.OpenReadAsync())
+            using (var classicStream = inputStream.AsStreamForRead())
+            using (var streamReader = new StreamReader(classicStream))
+            {
+                int lineNo = 0;
+                int idEvent = 0;
+                string[] tokenList;
+                // Make sure Other_Activity exists in dataset metadata.
+                ActivityViewModel curActivity = GetActivityByName("Other_Activity", true, true);
+                string curAnnotationTag = "";
+                // Add Other Activity to activity list
+                while (streamReader.Peek() >= 0)
+                {
+                    string curEventString = streamReader.ReadLine();
+                    if (string.IsNullOrWhiteSpace(curEventString)) continue;
+                    tokenList = curEventString.Split(new char[] {' ', '\t', ','});
+                    // Get the Date of the String and add to dictionary
+                    DateTime curEventTimeTag = DateTime.Parse(tokenList[0] + ' ' + tokenList[1]);  
+                    // Check the activity label of current event
+                    if(tokenList.Length > 4 && !string.IsNullOrWhiteSpace(tokenList[4]))
+                    {
+                        // Process annotation tag
+                        string[] subTokenList = tokenList[4].Split(new char[] { '=' });
+                        curActivity = GetActivityByName(subTokenList[0], true, true);
+                        // In case the ="begin" part is missing in the annotation
+                        if(subTokenList.Length < 2)
+                        {
+                            if(curAnnotationTag == "\"begin\"")
+                            {
+                                curAnnotationTag = "\"end\"";
+                            }
+                            else
+                            {
+                                curAnnotationTag = "\"begin\"";
+                            }
+                        }
+                        else
+                        {
+                            curAnnotationTag = subTokenList[1];
+                        }
+                    }
+                    // Append Activity
+                    while(idEvent < _eventStringList.Count)
+                    {
+                        // Check datetime of current event
+                        SensorEventViewModel sensorEvent = ParseSensorEventFromString(_eventStringList[idEvent]);
+                        if(sensorEvent.TimeTag.DateTime <= curEventTimeTag)
+                        {
+                            sensorEvent.Activity = curActivity;
+                            _eventStringList[idEvent] = sensorEvent.ToString();
+                            idEvent++;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    // If activity end, update annotation token to OtherActivity
+                    if(curAnnotationTag == "\"end\"")
+                    {
+                        curActivity = GetActivityByName("Other_Activity"); ;
+                        curAnnotationTag = "";
+                    }
+                    // Log Token
+                    lineNo++;
+                }
+            }
+            this.IsEventsModified = true;
         }
     }
 

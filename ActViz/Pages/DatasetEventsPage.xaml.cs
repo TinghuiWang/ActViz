@@ -14,6 +14,7 @@ using Windows.ApplicationModel;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Storage;
+using Windows.Storage.Pickers;
 using Windows.UI;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
@@ -620,6 +621,32 @@ namespace ActViz.Pages
             {
                 dataListView.SelectedIndex = selectedId;
                 dataListView.ScrollIntoView(dataListView.Items[selectedId]);
+            }
+        }
+
+        private async void MenuImport_ClickAsync(object sender, RoutedEventArgs e)
+        {
+            FileOpenPicker filePicker = new FileOpenPicker
+            {
+                ViewMode = PickerViewMode.Thumbnail,
+                SuggestedStartLocation = PickerLocationId.DocumentsLibrary
+            };
+            filePicker.FileTypeFilter.Add(".txt");
+            StorageFile annotationFile = await filePicker.PickSingleFileAsync();
+            if (annotationFile != null)
+            {
+                MessageDialog dialog = new MessageDialog(
+                    "Do you want to overwrite annotation with the file at " + annotationFile.Path + "?",
+                    "Overwrite Annotation");
+                dialog.Commands.Add(new UICommand("Yes"));
+                dialog.Commands.Add(new UICommand("No"));
+                dialog.DefaultCommandIndex = 1;
+                var result = await dialog.ShowAsync();
+                if (result.Label == "Yes")
+                {
+                    // Replace floorplan file.
+                    await _viewModel.ImportAnnotationAsync(annotationFile);
+                }
             }
         }
     }
