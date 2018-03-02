@@ -236,13 +236,15 @@ namespace ActViz.Services
                         }
                         else
                         {
-                            Sensor sensor = new Sensor();
-                            sensor.Name = targetName;
-                            sensor.Types = new List<string>() { reader.IsDBNull(1) ? "" : reader.GetString(1) };
-                            sensor.LocX = 0;
-                            sensor.LocY = 0;
-                            sensor.SizeX = 0.05;
-                            sensor.SizeY = 0.02;
+                            Sensor sensor = new Sensor
+                            {
+                                Name = targetName,
+                                Types = new List<string>() { reader.IsDBNull(1) ? "" : reader.GetString(1) },
+                                LocX = 0,
+                                LocY = 0,
+                                SizeX = 0.05,
+                                SizeY = 0.02
+                            };
                             sensorList.Add(sensor);
                             sensorDict.Add(targetName, sensor);
                         }
@@ -291,7 +293,7 @@ namespace ActViz.Services
                         string message = reader.IsDBNull(2) ? "" : reader.GetString(2);
                         string sensorTypeString = reader.IsDBNull(3) ? "" : reader.GetString(3);
                         DateTimeOffset utcDateTimeOffset = reader.IsDBNull(0) ? DateTimeOffset.MinValue : reader.GetFieldValue<DateTimeOffset>(0);
-                        string eventString = String.Format("{0:MM/dd/yyyy HH:mm:ss zzz},{1},{2},,,{3}",
+                        string eventString = String.Format("{0:MM/dd/yyyy HH:mm:ss.ffffff zzz},{1},{2},,,{3}",
                                 TimeZoneInfo.ConvertTime(utcDateTimeOffset, testBed.TimeZone),
                                 reader.IsDBNull(1) ? "" : reader.GetString(1),
                                 message,

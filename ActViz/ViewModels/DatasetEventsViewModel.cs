@@ -39,6 +39,7 @@ namespace ActViz.ViewModels
         public EventViewFilter EventViewFilter { get; set; }
 
         List<string> _eventStringList = new List<string>();
+        public List<string> AllEventsStringList { get { return _eventStringList; } }
         ObservableCollection<SensorEventViewModel> _allEventsInView = new ObservableCollection<SensorEventViewModel>();
         public AdvancedCollectionView EventsInView;
         private Dictionary<DateTimeOffset, EventOffset> _dictDateEvents = new Dictionary<DateTimeOffset, EventOffset>();
@@ -420,7 +421,8 @@ namespace ActViz.ViewModels
                 await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                  {
                      CurrentDate = date;
-                     NumEventsInView = _allEventsInView.Count;
+                     EventsInView.Refresh();
+                     NumEventsInView = EventsInView.Count;
                  });
             }
             else

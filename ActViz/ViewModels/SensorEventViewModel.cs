@@ -53,7 +53,7 @@ namespace ActViz.ViewModels
 
         public override string ToString()
         {
-            return TimeTag.ToString("MM/dd/yyyy HH:mm:ss zzz,") + Sensor.Name + "," + SensorState + "," + Resident.Name + "," + Activity.Name + "," + Comments;
+            return TimeTag.ToString("MM/dd/yyyy HH:mm:ss.ffffff zzz,") + Sensor.Name + "," + SensorState + "," + Resident.Name + "," + Activity.Name + "," + Comments;
         }
     }
 }
