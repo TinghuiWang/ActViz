@@ -58,6 +58,20 @@ namespace ActViz.Models
 
         public async Task WriteMetadataToFolderAsync()
         {
+            Activities.Sort(delegate (Activity x, Activity y)
+            {
+                if (x.Name == null && y.Name == null) return 0;
+                else if (x.Name == null) return -1;
+                else if (y.Name == null) return 1;
+                else return x.Name.CompareTo(y.Name);
+            });
+            Residents.Sort(delegate (Resident x, Resident y)
+            {
+                if (x.Name == null && y.Name == null) return 0;
+                else if (x.Name == null) return -1;
+                else if (y.Name == null) return 1;
+                else return x.Name.CompareTo(y.Name);
+            });
             StorageFile datasetMetaFile = await Folder.CreateFileAsync("dataset.json", CreationCollisionOption.ReplaceExisting);
             await FileIO.WriteTextAsync(datasetMetaFile, JsonConvert.SerializeObject(this, Formatting.Indented));
         }
