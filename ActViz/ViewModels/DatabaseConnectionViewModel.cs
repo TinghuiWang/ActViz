@@ -180,6 +180,7 @@ namespace ActViz.ViewModels
             }
             catch (Exception e)
             {
+                appLog.Error(this.GetType().ToString(), "Failed to start DB service with error message: " + e.Message);
                 return false;
             }
             return true;
