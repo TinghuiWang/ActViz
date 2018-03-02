@@ -78,6 +78,13 @@ namespace ActViz.ViewModels
             set { SetProperty(ref _isEventsModified, value, "IsEventsModified"); }
         }
 
+        private bool _isDatasetModified = false;
+        public bool IsDatasetModified
+        {
+            get { return _isDatasetModified; }
+            set { SetProperty(ref _isDatasetModified, value); }
+        }
+
         private int _numEventsInView = 0;
         public int NumEventsInView
         {
@@ -154,6 +161,10 @@ namespace ActViz.ViewModels
                 foreach (string eventString in _eventStringList)
                     streamWriter.WriteLine(eventString);
             }
+            if(IsDatasetModified)
+            {
+                await Dataset.WriteMetadataToFolderAsync();
+            }
         }
 
         internal void TagResident(string tag, SensorEventViewModel sensorEvent)
@@ -178,6 +189,30 @@ namespace ActViz.ViewModels
             IsEventsModified = true;
         }
 
+        internal void TagAllResidents(string tag)
+        {
+            for(int idEvent = 0; idEvent < _eventStringList.Count; idEvent++)
+            {
+                string strCurrentEvent = _eventStringList[idEvent];
+                SensorEventViewModel sensorEvent = ParseSensorEventFromString(strCurrentEvent);
+                sensorEvent.Resident = GetResidentByName(tag);
+                _eventStringList[idEvent] = sensorEvent.ToString();
+            }
+            IsEventsModified = true;
+        }
+
+        internal void TagResidentOfDay(string tag)
+        {
+            foreach (SensorEventViewModel sensorEvent in _allEventsInView)
+            {
+                if (sensorEvent.Resident.Name != tag)
+                {
+                    TagResident(tag, sensorEvent);
+                }
+            }
+            IsEventsModified = true;
+        }
+
         internal void TagActivity(string tag, SensorEventViewModel sensorEvent)
         {
             sensorEvent.Activity = GetActivityByName(tag);
@@ -196,6 +231,27 @@ namespace ActViz.ViewModels
                     if (complementaryEvent != null)
                         TagActivity(tag, complementaryEvent);
                 }
+            }
+            IsEventsModified = true;
+        }
+
+        internal void UntagActivitiesOfDay()
+        {
+            foreach (SensorEventViewModel sensorEvent in _allEventsInView)
+            {
+                sensorEvent.Activity = ActivityViewModel.NullActivity;
+            }
+            IsEventsModified = true;
+        }
+
+        internal void UntagAllActivities()
+        {
+            for (int idEvent = 0; idEvent < _eventStringList.Count; idEvent++)
+            {
+                string strCurrentEvent = _eventStringList[idEvent];
+                SensorEventViewModel sensorEvent = ParseSensorEventFromString(strCurrentEvent);
+                sensorEvent.Activity = ActivityViewModel.NullActivity;
+                _eventStringList[idEvent] = sensorEvent.ToString();
             }
             IsEventsModified = true;
         }
@@ -347,9 +403,9 @@ namespace ActViz.ViewModels
             await LoadEventsAsync(_firstEventDate);
         }
 
-        public async Task LoadEventsAsync(DateTimeOffset date)
+        public async Task LoadEventsAsync(DateTimeOffset date, bool forceReload = false)
         {
-            if (date == CurrentDate) return;
+            if (!forceReload && date == CurrentDate) return;
             _allEventsInView.Clear();
             EventOffset eventOffsetTuple;
             if (_dictDateEvents.TryGetValue(date, out eventOffsetTuple))
@@ -707,6 +763,7 @@ namespace ActViz.ViewModels
                     lineNo++;
                 }
             }
+            this.IsDatasetModified = true;
             this.IsEventsModified = true;
         }
     }

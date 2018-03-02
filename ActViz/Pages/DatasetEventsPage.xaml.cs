@@ -97,7 +97,7 @@ namespace ActViz.Pages
             await _viewModel.LoadDataAsync();
             PopulateSensors();
             DrawSensors();
-            populateAnnotateFlyout();
+            PopulateAnnotateFlyout();
             // Check Application Settings for last saved states. If the state exists and is valid, load the state
             ApplicationDataCompositeValue datasetLastSavedStates =
                 AppSettingsService.RetrieveFromSettings<ApplicationDataCompositeValue>(
@@ -132,7 +132,7 @@ namespace ActViz.Pages
         }
 
         #region Flyout
-        private void populateAnnotateFlyout()
+        private void PopulateAnnotateFlyout()
         {
             MenuFlyoutSubItem ActivityMenu = new MenuFlyoutSubItem();
             ActivityMenu.Text = "Tag Activity";
@@ -173,6 +173,54 @@ namespace ActViz.Pages
             menuUntagResident.Click += TagResident_Click;
             menuUntagResident.Tag = "";
             annotateFlyout.Items.Add(menuUntagResident);
+            annotateFlyout.Items.Add(new MenuFlyoutSeparator());
+            MenuFlyoutSubItem ResidentInDayMenu = new MenuFlyoutSubItem
+            {
+                Text = "Tag All Residents (This Day)"
+            };
+            foreach (ResidentViewModel resident in _viewModel.Residents)
+            {
+                MenuFlyoutItem curMenuItem = new MenuFlyoutItem
+                {
+                    Text = resident.Name,
+                    Tag = resident.Name,
+                    Foreground = new SolidColorBrush(resident.Color)
+                };
+                curMenuItem.Click += TagResidentInDay_ClickAsync;
+                ResidentInDayMenu.Items.Add(curMenuItem);
+            }
+            annotateFlyout.Items.Add(ResidentInDayMenu);
+            MenuFlyoutSubItem ResidentInDatasetMenu = new MenuFlyoutSubItem
+            {
+                Text = "Tag All Residents In Dataset"
+            };
+            foreach (ResidentViewModel resident in _viewModel.Residents)
+            {
+                MenuFlyoutItem curMenuItem = new MenuFlyoutItem
+                {
+                    Text = resident.Name,
+                    Tag = resident.Name,
+                    Foreground = new SolidColorBrush(resident.Color)
+                };
+                curMenuItem.Click += TagResidentInDataset_ClickAsync;
+                ResidentInDatasetMenu.Items.Add(curMenuItem);
+            }
+            annotateFlyout.Items.Add(ResidentInDatasetMenu);
+            annotateFlyout.Items.Add(new MenuFlyoutSeparator());
+            MenuFlyoutItem menuUntagActivityOfDay = new MenuFlyoutItem
+            {
+                Text = "Untag All Activities Of Day",
+                Tag = ""
+            };
+            menuUntagActivityOfDay.Click += UntagActivtyOfDay_ClickAsync;
+            annotateFlyout.Items.Add(menuUntagActivityOfDay);
+            MenuFlyoutItem menuUntagAllActivities = new MenuFlyoutItem
+            {
+                Text = "Untag All Activities Of the Dataset",
+                Tag = ""
+            };
+            menuUntagAllActivities.Click += UntagAllActivities_ClickAsync;
+            annotateFlyout.Items.Add(menuUntagAllActivities);
         }
 
         internal async Task ClosePageAsync()
@@ -187,6 +235,8 @@ namespace ActViz.Pages
                 {
                     PageBusy("Save events to dataset " + _viewModel.Dataset.Name);
                     await _viewModel.SaveEventsAsync();
+                    _viewModel.IsEventsModified = false;
+                    _viewModel.IsDatasetModified = false;
                     PageReady();
                 }
             }
@@ -208,6 +258,79 @@ namespace ActViz.Pages
             foreach (SensorEventViewModel sensorEvent in dataListView.SelectedItems)
                 selectedEvents.Add(sensorEvent);
             _viewModel.TagActivity((string)flyoutMenuItem.Tag, selectedEvents);
+        }
+
+        private async void TagResidentInDay_ClickAsync(object sender, RoutedEventArgs e)
+        {
+            MenuFlyoutItem flyoutMenuItem = (MenuFlyoutItem)sender;
+            // Ask for confirmation as it may overwrite existing annotations.
+            MessageDialog dialog = new MessageDialog(
+                "Tagging residents for the whole day as " + flyoutMenuItem.Tag + " will overwrite " +
+                "existing resident annotations. Do you want to proceed?",
+                "Tag Residents of the whole day");
+            dialog.Commands.Add(new UICommand("Yes"));
+            dialog.Commands.Add(new UICommand("No"));
+            dialog.DefaultCommandIndex = 1;
+            var result = await dialog.ShowAsync();
+            if (result.Label == "Yes")
+            {
+                _viewModel.TagResidentOfDay((string)flyoutMenuItem.Tag);
+            }
+        }
+
+        private async void TagResidentInDataset_ClickAsync(object sender, RoutedEventArgs e)
+        {
+            MenuFlyoutItem flyoutMenuItem = (MenuFlyoutItem)sender;
+            // Ask for confirmation as it may overwrite existing annotations.
+            MessageDialog dialog = new MessageDialog(
+                "Tagging residents for the whole dataset as " + flyoutMenuItem.Tag + " will overwrite " +
+                "existing resident annotations in the dataset. Do you want to proceed?",
+                "Tag Residents of Whole Dataset");
+            dialog.Commands.Add(new UICommand("Yes"));
+            dialog.Commands.Add(new UICommand("No"));
+            dialog.DefaultCommandIndex = 1;
+            var result = await dialog.ShowAsync();
+            if (result.Label == "Yes")
+            {
+                // Tag Residents
+                _viewModel.TagAllResidents((string)flyoutMenuItem.Tag);
+                await _viewModel.LoadEventsAsync(_viewModel.CurrentDate, true);
+            }
+        }
+
+        private async void UntagActivtyOfDay_ClickAsync(object sender, RoutedEventArgs e)
+        {
+            MenuFlyoutItem flyoutMenuItem = (MenuFlyoutItem)sender;
+            // Ask for confirmation as it may overwrite existing annotations.
+            MessageDialog dialog = new MessageDialog(
+                "Do you want to proceed to remove all activities of the day?",
+                "Untag activities of the whole day");
+            dialog.Commands.Add(new UICommand("Yes"));
+            dialog.Commands.Add(new UICommand("No"));
+            dialog.DefaultCommandIndex = 1;
+            var result = await dialog.ShowAsync();
+            if (result.Label == "Yes")
+            {
+                _viewModel.UntagActivitiesOfDay();
+            }
+        }
+
+        private async void UntagAllActivities_ClickAsync(object sender, RoutedEventArgs e)
+        {
+            MenuFlyoutItem flyoutMenuItem = (MenuFlyoutItem)sender;
+            // Ask for confirmation as it may overwrite existing annotations.
+            MessageDialog dialog = new MessageDialog(
+                "Do you want to proceed to remove all activity annotations in the whole dataset?",
+                "Untag activities of the dataset");
+            dialog.Commands.Add(new UICommand("Yes"));
+            dialog.Commands.Add(new UICommand("No"));
+            dialog.DefaultCommandIndex = 1;
+            var result = await dialog.ShowAsync();
+            if (result.Label == "Yes")
+            {
+                _viewModel.UntagAllActivities();
+                await _viewModel.LoadEventsAsync(_viewModel.CurrentDate, true);
+            }
         }
         #endregion
 
@@ -299,7 +422,6 @@ namespace ActViz.Pages
             sensorCanvas.Children.Add(sensorViewbox);
         }
         #endregion
-
 
         private async void btnPrevWeek_ClickAsync(object sender, RoutedEventArgs e)
         {
@@ -498,6 +620,7 @@ namespace ActViz.Pages
             PageBusy("Save events to dataset " + _viewModel.Dataset.Name);
             await _viewModel.SaveEventsAsync();
             _viewModel.IsEventsModified = false;
+            _viewModel.IsDatasetModified = false;
             PageReady();
         }
 
@@ -644,8 +767,9 @@ namespace ActViz.Pages
                 var result = await dialog.ShowAsync();
                 if (result.Label == "Yes")
                 {
-                    // Replace floorplan file.
+                    // Import annotation.
                     await _viewModel.ImportAnnotationAsync(annotationFile);
+                    await _viewModel.LoadEventsAsync(_viewModel.CurrentDate, true);
                 }
             }
         }
