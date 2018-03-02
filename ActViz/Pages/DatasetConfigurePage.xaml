@@ -26,8 +26,10 @@
                    FontFamily="Comic Sans MS" FontWeight="Bold" FontStyle="Italic" FontSize="20" 
                    Foreground="Black"/>
         <ScrollViewer Grid.Row="1" 
-                      HorizontalScrollMode="Enabled" VerticalScrollMode="Disabled">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch">
+                      HorizontalScrollMode="Enabled" VerticalScrollMode="Disabled" 
+                      HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch"
+                        ScrollViewer.VerticalScrollBarVisibility="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                 <Border BorderThickness="1" Padding="5" Margin="10">
                     <Border.BorderBrush>
                         <SolidColorBrush Color="Gray" Opacity="0.3"></SolidColorBrush>
