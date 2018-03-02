@@ -731,7 +731,56 @@ namespace ActViz.Pages
                 if(datasetExportConfig.ExportInTxt)
                 {
                     // For backward compatibility, one can export the dataset in old-style txt format.
-                    // Note that txt formatted dataset cannot be loaded by this program again.
+                    string txtFileName = datasetExportConfig.DatasetName + "_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".txt";
+                    StorageFile newDatasetFile = await folder.CreateFileAsync(txtFileName, CreationCollisionOption.ReplaceExisting);
+                    PageBusy(string.Format("Exporting dataset {0} to {1}", datasetExportConfig.DatasetName, newDatasetFile.Path));
+                    List<string> eventStringList = new List<string>();
+                    SensorEventViewModel sensorEvent = _viewModel.ParseSensorEventFromString(_viewModel.AllEventsStringList[0]);
+                    SensorEventViewModel nextSensorEvent;
+                    string previousActivity = "";
+                    for (int idEvent = 0; idEvent < _viewModel.AllEventsStringList.Count; idEvent++)
+                    {
+                        nextSensorEvent = (idEvent == _viewModel.AllEventsStringList.Count - 1) ? null :
+                            _viewModel.ParseSensorEventFromString(_viewModel.AllEventsStringList[idEvent + 1]);
+                        if (sensorEvent.TimeTag.Date >= datasetExportConfig.ExportStartDate && 
+                            sensorEvent.TimeTag.Date <= datasetExportConfig.ExportStopDate)
+                        {
+                            string annotationString = "";
+                            if(sensorEvent.Activity.Name != "Other_Activity")
+                            {
+                                if (sensorEvent.Activity.Name != previousActivity)
+                                {
+                                    annotationString = sensorEvent.Activity.Name + "=\"begin\"";
+                                }
+                                else if (nextSensorEvent == null)
+                                {
+                                    annotationString = sensorEvent.Activity.Name + "=\"end\"";
+                                }
+                                else if (nextSensorEvent.Activity.Name != sensorEvent.Activity.Name)
+                                {
+                                    annotationString = sensorEvent.Activity.Name + "=\"end\"";
+                                }
+                            }
+                            eventStringList.Add(
+                                sensorEvent.TimeTag.ToString("yyyy-MM-dd") + "\t" + 
+                                sensorEvent.TimeTag.ToString("HH:mm:ss.ffffff") + "\t" + 
+                                sensorEvent.Sensor.Name + "\t" +
+                                sensorEvent.SensorState + "\t" +
+                                annotationString
+                                );
+                            previousActivity = sensorEvent.Activity.Name;
+                        }
+                        if (sensorEvent.TimeTag.Date > datasetExportConfig.ExportStopDate) break;
+                        sensorEvent = nextSensorEvent;
+                    }
+                    using (var outputStream = await newDatasetFile.OpenAsync(FileAccessMode.ReadWrite))
+                    using (var classicStream = outputStream.AsStreamForWrite())
+                    using (var streamWriter = new StreamWriter(classicStream))
+                    {
+                        foreach (string eventString in eventStringList)
+                            streamWriter.WriteLine(eventString);
+                    }
+                    PageReady();
                     return;
                 }
             }
