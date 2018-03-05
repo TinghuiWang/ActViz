@@ -51,6 +51,42 @@ namespace ActViz.ViewModels
             set { SetProperty(ref _comments, value); }
         }
 
+        /* The following parameters are for filtering the display */
+        private bool _isFiltered = true;
+        public bool IsFiltered
+        {
+            get { return _isFiltered; }
+            set { SetProperty(ref _isFiltered, value); }
+        }
+
+        private bool _isActivityFiltered = true;
+        public bool IsActivityFiltered
+        {
+            get { return _isActivityFiltered; }
+            set { SetProperty(ref _isActivityFiltered, value); }
+        }
+
+        private bool _isExpandedInView = false;
+        public bool IsExpandedInView
+        {
+            get { return _isExpandedInView; }
+            set { SetProperty(ref _isExpandedInView, value); }
+        }
+
+        private bool _isStartOfSegment = false;
+        public bool IsStartOfSegment
+        {
+            get { return _isStartOfSegment; }
+            set { SetProperty(ref _isStartOfSegment, value); }
+        }
+
+        private bool _isEndOfSegment = false;
+        public bool IsEndOfSegment
+        {
+            get { return _isEndOfSegment; }
+            set { SetProperty(ref _isEndOfSegment, value); }
+        }
+        
         public override string ToString()
         {
             return TimeTag.ToString("MM/dd/yyyy HH:mm:ss.ffffff zzz,") + Sensor.Name + "," + SensorState + "," + Resident.Name + "," + Activity.Name + "," + Comments;

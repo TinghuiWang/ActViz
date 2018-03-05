@@ -86,6 +86,8 @@ namespace ActViz.Pages
             {
                 Day = _viewModel.CurrentDate,
                 EventInView = dataListView.SelectedIndex,
+                EventTimeTag = (_viewModel.SelectedSensorEvent != null) ? 
+                    _viewModel.SelectedSensorEvent.TimeTag : _viewModel.CurrentDate,
                 Filter = _viewModel.EventViewFilter
             });
             AppSettingsService.AddToSettings<ApplicationDataCompositeValue>("DatasetLastSavedStates", datasetLastSavedStates);
@@ -112,11 +114,34 @@ namespace ActViz.Pages
                 }
                 _viewModel.EventViewFilter = datasetState.Filter;
                 _viewModel.RefreshEventsInView();
-                if(datasetState.EventInView >= 0 && datasetState.EventInView < _viewModel.EventsInView.Count)
+                if(datasetState.EventTimeTag != null)
                 {
-                    _viewModel.SelectedSensorEvent = (SensorEventViewModel) dataListView.Items[datasetState.EventInView];
+                    int i = 0;
+                    for (i = 0; i < _viewModel.EventsInView.Count; i++)
+                    {
+                        SensorEventViewModel sensorEvent = (SensorEventViewModel)_viewModel.EventsInView[i];
+                        if(sensorEvent.TimeTag >= datasetState.EventTimeTag)
+                        {
+                            _viewModel.SelectedSensorEvent = sensorEvent;
+                            break;
+                        }
+                    }
+                    if (i == _viewModel.EventsInView.Count && i != 0)
+                    {
+                        _viewModel.SelectedSensorEvent = (SensorEventViewModel)_viewModel.EventsInView.Last();
+                    }
                 }
-                dataListView.ScrollIntoView(_viewModel.SelectedSensorEvent);
+                else
+                {
+                    if (datasetState.EventInView >= 0 && datasetState.EventInView < _viewModel.EventsInView.Count)
+                    {
+                        _viewModel.SelectedSensorEvent = (SensorEventViewModel)dataListView.Items[datasetState.EventInView];
+                    }
+                }
+                if(_viewModel.SelectedSensorEvent != null)
+                {
+                    dataListView.ScrollIntoView(_viewModel.SelectedSensorEvent);
+                }
             }
             PageReady();
         }
@@ -821,6 +846,18 @@ namespace ActViz.Pages
                     await _viewModel.LoadEventsAsync(_viewModel.CurrentDate, true);
                 }
             }
+        }
+
+        private void btnExpandUp_Click(object sender, RoutedEventArgs e)
+        {
+            SensorEventViewModel sensorEvent = (SensorEventViewModel) ((Button)sender).Tag;
+            _viewModel.FilterExpand(sensorEvent);
+        }
+
+        private void btnExpandDown_Click(object sender, RoutedEventArgs e)
+        {
+            SensorEventViewModel sensorEvent = (SensorEventViewModel)((Button)sender).Tag;
+            _viewModel.FilterExpand(sensorEvent);
         }
     }
 }

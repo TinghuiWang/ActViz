@@ -15,6 +15,8 @@
 
     <Page.Resources>
         <converters:FormatStringConverter x:Key="DateTimeToStringConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" 
+                                              TrueValue="Visible" FalseValue="Collapsed" />
     </Page.Resources>
     
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
@@ -76,31 +78,47 @@
             </ListView.ItemContainerStyle>
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="viewmodels:SensorEventViewModel">
-                    <Grid Margin="0, 5">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="150"/>
-                            <ColumnDefinition Width="50"/>
-                            <ColumnDefinition Width="50"/>
-                            <ColumnDefinition Width="50"/>
-                            <ColumnDefinition Width="50"/>
-                            <ColumnDefinition Width="200"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" FontFamily="Consolas" Margin="0,0,10,0" Text="{x:Bind TimeTag, Converter={StaticResource DateTimeToStringConverter}, Mode=OneWay, ConverterParameter='yyyy MM/dd H:mm:ss'}"/>
-                        <TextBlock Grid.Column="1" FontFamily="Consolas" Margin="0,0,10,0" Text="{x:Bind Resident.Name, Mode=OneWay}">
-                            <TextBlock.Foreground>
-                                <SolidColorBrush Color="{x:Bind Resident.Color, Mode=OneWay}" />
-                            </TextBlock.Foreground>
-                        </TextBlock>
-                        <TextBlock Grid.Column="2" FontFamily="Consolas" Margin="0,0,10,0" Text="{x:Bind Sensor.Name, Mode=OneWay}" FontWeight="Bold"/>
-                        <TextBlock Grid.Column="3" FontFamily="Consolas" Margin="0,0,10,0" Text="{x:Bind SensorState, Mode=OneWay}"/>
-                        <TextBlock Grid.Column="4" FontFamily="Consolas" Margin="0,0,10,0" 
+                    <StackPanel Orientation="Vertical">
+                        <Button x:Name="btnExpandUp"
+                                Click="btnExpandUp_Click"
+                                HorizontalAlignment="Stretch"
+                                Margin="0, 5" Tag="{x:Bind}"
+                                Visibility="{x:Bind IsStartOfSegment, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                            Expand Up
+                        </Button>
+                        <Grid Margin="0, 5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="50"/>
+                                <ColumnDefinition Width="50"/>
+                                <ColumnDefinition Width="50"/>
+                                <ColumnDefinition Width="50"/>
+                                <ColumnDefinition Width="200"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" FontFamily="Consolas" Margin="0,0,10,0" Text="{x:Bind TimeTag, Converter={StaticResource DateTimeToStringConverter}, Mode=OneWay, ConverterParameter='yyyy MM/dd H:mm:ss'}"/>
+                            <TextBlock Grid.Column="1" FontFamily="Consolas" Margin="0,0,10,0" Text="{x:Bind Resident.Name, Mode=OneWay}">
+                                <TextBlock.Foreground>
+                                    <SolidColorBrush Color="{x:Bind Resident.Color, Mode=OneWay}" />
+                                </TextBlock.Foreground>
+                            </TextBlock>
+                            <TextBlock Grid.Column="2" FontFamily="Consolas" Margin="0,0,10,0" Text="{x:Bind Sensor.Name, Mode=OneWay}" FontWeight="Bold"/>
+                            <TextBlock Grid.Column="3" FontFamily="Consolas" Margin="0,0,10,0" Text="{x:Bind SensorState, Mode=OneWay}"/>
+                            <TextBlock Grid.Column="4" FontFamily="Consolas" Margin="0,0,10,0" 
                                    Text="{x:Bind Activity.Name, Mode=OneWay}">
-                            <TextBlock.Foreground>
-                                <SolidColorBrush Color="{x:Bind Activity.Color, Mode=OneWay}" />
-                            </TextBlock.Foreground>
-                        </TextBlock>
-                        <TextBlock Grid.Column="5" FontFamily="Consolas" Margin="0,0,10,0" Text="{x:Bind Comments, Mode=OneWay}"/>
-                    </Grid>
+                                <TextBlock.Foreground>
+                                    <SolidColorBrush Color="{x:Bind Activity.Color, Mode=OneWay}" />
+                                </TextBlock.Foreground>
+                            </TextBlock>
+                            <TextBlock Grid.Column="5" FontFamily="Consolas" Margin="0,0,10,0" Text="{x:Bind Comments, Mode=OneWay}"/>
+                        </Grid>
+                        <Button x:Name="btnExpandDown"
+                                Click="btnExpandDown_Click"
+                                HorizontalAlignment="Stretch"
+                                Margin="0, 5" Tag="{x:Bind}"
+                                Visibility="{x:Bind IsEndOfSegment, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                            Expand Down
+                        </Button>
+                    </StackPanel>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>

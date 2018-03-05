@@ -10,6 +10,7 @@ namespace ActViz.Models
     public class DatasetViewSavedState
     {
         public DateTimeOffset Day { get; set; }
+        public DateTimeOffset EventTimeTag { get; set; }
         public int EventInView { get; set; }
         public EventViewFilter Filter { get; set; }
     }

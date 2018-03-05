@@ -18,6 +18,9 @@ namespace ActViz.ViewModels
     {
         Logger appLog = Logger.Instance;
 
+        // Some constants
+        private readonly int iExpandUnit = 10;
+
         // SensorViewModelDictionary for fast sensorViewModel Lookup
         Dictionary<string, SensorViewModel> _sensorViewModelDict = new Dictionary<string, SensorViewModel>();
         HashSet<SensorViewModel> _activeSensors = new HashSet<SensorViewModel>();
@@ -162,7 +165,7 @@ namespace ActViz.ViewModels
                 foreach (string eventString in _eventStringList)
                     streamWriter.WriteLine(eventString);
             }
-            if(IsDatasetModified)
+            if (IsDatasetModified)
             {
                 await Dataset.WriteMetadataToFolderAsync();
             }
@@ -192,7 +195,7 @@ namespace ActViz.ViewModels
 
         internal void TagAllResidents(string tag)
         {
-            for(int idEvent = 0; idEvent < _eventStringList.Count; idEvent++)
+            for (int idEvent = 0; idEvent < _eventStringList.Count; idEvent++)
             {
                 string strCurrentEvent = _eventStringList[idEvent];
                 SensorEventViewModel sensorEvent = ParseSensorEventFromString(strCurrentEvent);
@@ -291,7 +294,12 @@ namespace ActViz.ViewModels
             return null;
         }
 
-        private bool FilterEvent(SensorEventViewModel sensorEvent)
+        /// <summary>
+        /// Apply static filters such ad null activities, null residents, sensor status or sensor categories on sensor event.
+        /// </summary>
+        /// <param name="sensorEvent"></param>
+        /// <returns>true if the sensor event is hidden</returns>
+        private bool ApplyStaticFilter(SensorEventViewModel sensorEvent)
         {
             if (EventViewFilter.HideEventsWithoutActivity)
             {
@@ -301,23 +309,164 @@ namespace ActViz.ViewModels
             {
                 if ((Resident)sensorEvent.Resident == Resident.NullResident) return true;
             }
-            foreach (string sensorStatus in EventViewFilter.SensorStatus)
-            {
-                if (sensorEvent.SensorState == sensorStatus) return true;
-            }
-            foreach (string activityName in EventViewFilter.Activities)
-            {
-                if (sensorEvent.Activity.Name == activityName) return true;
-            }
-            foreach (string residentName in EventViewFilter.Residents)
-            {
-                if (sensorEvent.Resident.Name == residentName) return true;
-            }
+            if (EventViewFilter.SensorStatus.Contains(sensorEvent.SensorState)) return true;
+            if (EventViewFilter.Residents.Contains(sensorEvent.Resident.Name)) return true;
+            //foreach (string activityName in EventViewFilter.Activities)
+            //{
+            //    if (sensorEvent.Activity.Name == activityName) return true;
+            //}
             foreach (string sensorCategory in EventViewFilter.SensorCategories)
             {
                 if (sensorEvent.Sensor.SensorCategories.Contains(sensorCategory)) return true;
             }
             return false;
+        }
+
+        private bool ApplyActivityFilter(SensorEventViewModel sensorEvent)
+        {
+            if(EventViewFilter.Activities.Contains(sensorEvent.Activity.Name))
+                return true;
+            return false;
+        }
+
+        private void ExpandFilteredEvents(int idEvent)
+        {
+            int i = idEvent - 1;
+            int count = 0;
+            // Check iExpandUnit events above
+            while(i >= 0 && count < iExpandUnit)
+            {
+                // Event already in view. Remove seg end tag or seg begin tag
+                if (_allEventsInView[i].IsActivityFiltered || _allEventsInView[i].IsExpandedInView)
+                {
+                    _allEventsInView[i].IsEndOfSegment = false;
+                    break;
+                }
+                if (_allEventsInView[i].IsFiltered)
+                {
+                    _allEventsInView[i].IsExpandedInView = true;
+                    count++;
+                }
+                i--;
+            }
+            // If i reaches end and does not equal to 0, It is a start of a segment
+            i++;
+            if(i != 0 && count == iExpandUnit)
+            {
+                _allEventsInView[i].IsStartOfSegment = true;
+            }
+            // Check the subsequent events
+            i = idEvent + 1;
+            count = 0;
+            while (i < _allEventsInView.Count && count < iExpandUnit)
+            {
+                // Event already in view. Remove seg end tag or seg begin tag
+                if (_allEventsInView[i].IsActivityFiltered || _allEventsInView[i].IsExpandedInView)
+                {
+                    break;
+                }
+                if (_allEventsInView[i].IsFiltered)
+                {
+                    _allEventsInView[i].IsExpandedInView = true;
+                    count++;
+                }
+                i++;
+            }
+            // If i reaches end and does not equal to end of all events, it is marked as end of a segment
+            if(i != _allEventsInView.Count && count == iExpandUnit)
+            {
+                i--;
+                _allEventsInView[i].IsEndOfSegment = true;
+            }
+        }
+
+        private void ApplyFilter()
+        {
+            bool IsActivityFilterEnabled = (EventViewFilter.Activities.Count < Dataset.Activities.Count);
+            // Apply filter to all events
+            for(int idEvent = 0; idEvent < _allEventsInView.Count; idEvent ++)
+            {
+                SensorEventViewModel sensorEvent = _allEventsInView[idEvent];
+                sensorEvent.IsFiltered = !ApplyStaticFilter(sensorEvent);
+                sensorEvent.IsActivityFiltered = !ApplyActivityFilter(sensorEvent);
+                sensorEvent.IsExpandedInView = false;
+                sensorEvent.IsStartOfSegment = false;
+                sensorEvent.IsEndOfSegment = false;
+            }
+            if (IsActivityFilterEnabled)
+            {
+                for (int idEvent = 0; idEvent < _allEventsInView.Count; idEvent++)
+                {
+                    SensorEventViewModel sensorEvent = _allEventsInView[idEvent];
+                    if (sensorEvent.IsActivityFiltered)
+                    {
+                        ExpandFilteredEvents(idEvent);
+                    }
+                }
+            }
+            EventsInView.Refresh();
+        }
+
+        private bool FilterEvent(SensorEventViewModel sensorEvent)
+        {
+            /* Looking for IsFiltered and IsExpandedInView property */
+            return !((sensorEvent.IsFiltered && sensorEvent.IsActivityFiltered) || sensorEvent.IsExpandedInView);
+        }
+
+        internal void FilterExpand(SensorEventViewModel sensorEvent)
+        {
+            int idEvent = _allEventsInView.IndexOf(sensorEvent);
+            if (idEvent < 0) return;
+            int count = 0;
+            if(sensorEvent.IsStartOfSegment)
+            {
+                sensorEvent.IsStartOfSegment = false;
+                idEvent--;
+                while(idEvent >= 0 && count < iExpandUnit)
+                {
+                    if(_allEventsInView[idEvent].IsActivityFiltered || _allEventsInView[idEvent].IsExpandedInView)
+                    {
+                        _allEventsInView[idEvent].IsEndOfSegment = false;
+                        break;
+                    }
+                    if(_allEventsInView[idEvent].IsFiltered)
+                    {
+                        _allEventsInView[idEvent].IsExpandedInView = true;
+                        count++;
+                    }
+                    idEvent--;
+                }
+                idEvent++;
+                if(count == iExpandUnit && idEvent > 0)
+                {
+                    _allEventsInView[idEvent].IsStartOfSegment = true;
+                }
+            }
+            else
+            {
+                sensorEvent.IsEndOfSegment = false;
+                idEvent++;
+                while (idEvent < _allEventsInView.Count && count < iExpandUnit)
+                {
+                    if (_allEventsInView[idEvent].IsActivityFiltered || _allEventsInView[idEvent].IsExpandedInView)
+                    {
+                        _allEventsInView[idEvent].IsStartOfSegment = false;
+                        break;
+                    }
+                    if (_allEventsInView[idEvent].IsFiltered)
+                    {
+                        _allEventsInView[idEvent].IsExpandedInView = true;
+                        count++;
+                    }
+                    idEvent++;
+                }
+                idEvent--;
+                if (count == iExpandUnit && idEvent < _allEventsInView.Count)
+                {
+                    _allEventsInView[idEvent].IsEndOfSegment = true;
+                }
+            }
+            EventsInView.Refresh();
         }
 
         private DateTimeOffset GetNextDay(DateTimeOffset date)
@@ -421,7 +570,7 @@ namespace ActViz.ViewModels
                 await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                  {
                      CurrentDate = date;
-                     EventsInView.Refresh();
+                     ApplyFilter();
                      NumEventsInView = EventsInView.Count;
                  });
             }
@@ -495,7 +644,7 @@ namespace ActViz.ViewModels
 
         internal void RefreshEventsInView()
         {
-            EventsInView.Refresh();
+            ApplyFilter();
             NumEventsInView = EventsInView.Count;
         }
 
