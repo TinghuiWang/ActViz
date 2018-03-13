@@ -326,7 +326,7 @@ namespace ActViz.ViewModels
         {
             if(EventViewFilter.Activities.Contains(sensorEvent.Activity.Name))
                 return true;
-            return false;
+            return sensorEvent.Activity == ActivityViewModel.NullActivity;
         }
 
         private void ExpandFilteredEvents(int idEvent)
