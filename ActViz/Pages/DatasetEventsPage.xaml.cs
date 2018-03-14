@@ -199,6 +199,13 @@ namespace ActViz.Pages
             menuUntagResident.Tag = "";
             annotateFlyout.Items.Add(menuUntagResident);
             annotateFlyout.Items.Add(new MenuFlyoutSeparator());
+            MenuFlyoutItem menuTagOtherActivity = new MenuFlyoutItem
+            {
+                Text = "Fill Null Activity with \"Other Activity\""
+            };
+            menuTagOtherActivity.Click += FillNullActivityAsync;
+            annotateFlyout.Items.Add(menuTagOtherActivity);
+            annotateFlyout.Items.Add(new MenuFlyoutSeparator());
             MenuFlyoutSubItem ResidentInDayMenu = new MenuFlyoutSubItem
             {
                 Text = "Tag All Residents (This Day)"
@@ -283,6 +290,23 @@ namespace ActViz.Pages
             foreach (SensorEventViewModel sensorEvent in dataListView.SelectedItems)
                 selectedEvents.Add(sensorEvent);
             _viewModel.TagActivity((string)flyoutMenuItem.Tag, selectedEvents);
+        }
+
+        private async void FillNullActivityAsync(object sender, RoutedEventArgs e)
+        {
+            MessageDialog dialog = new MessageDialog(
+                "Sensor events without an activity label will be filled with Other Activity. Do you want to proceed?",
+                "Fill with Other Activity");
+            dialog.Commands.Add(new UICommand("Yes"));
+            dialog.Commands.Add(new UICommand("No"));
+            dialog.DefaultCommandIndex = 1;
+            var result = await dialog.ShowAsync();
+            if (result.Label == "Yes")
+            {
+                // Tag Residents
+                _viewModel.FillNullActivity();
+                await _viewModel.LoadEventsAsync(_viewModel.CurrentDate, true);
+            }
         }
 
         private async void TagResidentInDay_ClickAsync(object sender, RoutedEventArgs e)

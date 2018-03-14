@@ -218,6 +218,21 @@ namespace ActViz.ViewModels
             IsEventsModified = true;
         }
 
+        internal void FillNullActivity()
+        {
+            for (int idEvent = 0; idEvent < _eventStringList.Count; idEvent++)
+            {
+                string strCurrentEvent = _eventStringList[idEvent];
+                SensorEventViewModel sensorEvent = ParseSensorEventFromString(strCurrentEvent);
+                if(sensorEvent.Activity == ActivityViewModel.NullActivity)
+                {
+                    sensorEvent.Activity = GetActivityByName("Other_Activity", true, true);
+                    IsEventsModified = true;
+                }
+                _eventStringList[idEvent] = sensorEvent.ToString();
+            }
+        }
+
         internal void TagActivity(string tag, SensorEventViewModel sensorEvent)
         {
             sensorEvent.Activity = GetActivityByName(tag);
