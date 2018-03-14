@@ -774,6 +774,19 @@ namespace ActViz.ViewModels
             return sensorEvent;
         }
 
+        internal HashSet<string> GetCurrentActiveSensors()
+        {
+            int unfilteredIndex = (SelectedSensorEvent == null) ? -1 : _allEventsInView.IndexOf(SelectedSensorEvent);
+            if(unfilteredIndex >= 0 && unfilteredIndex < _activeSensorsList.Count)
+            {
+                return _activeSensorsList[unfilteredIndex];
+            }
+            else
+            {
+                return new HashSet<string>();
+            }
+        }
+
         internal List<SensorPastInfo> GetPastSensorInfo()
         {
             if (_allEventsInView.Count == 0 || SelectedSensorEvent == null) return SensorPastInfoList;

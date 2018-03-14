@@ -403,9 +403,12 @@ namespace ActViz.Pages
                 //Height = sensor.SizeY * totalY,
                 Width = sensorIconWidth,
                 Height = sensorIconHeight,
-                Fill = new SolidColorBrush(SensorType.GetBestColorForSensor(sensorViewModel)),
-                Stroke = new SolidColorBrush(Colors.DimGray),
-                StrokeThickness = 1,
+                Fill = new SolidColorBrush(SensorType.GetBestColorForSensor(sensorViewModel))
+                {
+                    Opacity = 0.0
+                },
+                Stroke = new SolidColorBrush(SensorType.GetBestColorForSensor(sensorViewModel)),
+                StrokeThickness = 2,
                 StrokeDashCap = PenLineCap.Round,
                 Opacity = 0.1,
             };
@@ -519,6 +522,7 @@ namespace ActViz.Pages
             foreach (Tuple<SensorViewModel, Rectangle, Viewbox> canvasSensorEntry in canvasSensorList)
             {
                 canvasSensorEntry.Item2.Opacity = 0.1;
+                canvasSensorEntry.Item2.Fill.Opacity = 0.0;
             }
             // Update Each Sensor Block
             List<SensorPastInfo> sensorPastInfoList = _viewModel.GetPastSensorInfo();
@@ -540,13 +544,17 @@ namespace ActViz.Pages
                         canvasSensorList.Find(x => x.Item1.Name == sensorPastInfo.Name);
                     if (canvasSensorEntry != null)
                     {
-                        Color sensorTypeColor = SensorType.GetColorFromSensorType(canvasSensorEntry.Item1.Types[0]);
-                        canvasSensorEntry.Item2.Fill = new SolidColorBrush(sensorTypeColor);
                         canvasSensorEntry.Item2.Opacity = (1 - ((double)timeElapse) / maxTimeElapse) * 0.6 + 0.5;
                     }
                     // Add Sensor Count
                     sensorDrawn++;
                 }
+            }
+            foreach (string sensorName in _viewModel.GetCurrentActiveSensors())
+            {
+                Tuple<SensorViewModel, Rectangle, Viewbox> canvasSensorEntry =
+                        canvasSensorList.Find(x => x.Item1.Name == sensorName);
+                canvasSensorEntry.Item2.Fill.Opacity = 1.0;
             }
             DrawResidentsPath();
             sensorCanvas.InvalidateArrange();
