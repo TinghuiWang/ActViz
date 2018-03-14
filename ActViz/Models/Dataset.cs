@@ -76,11 +76,70 @@ namespace ActViz.Models
             await FileIO.WriteTextAsync(datasetMetaFile, JsonConvert.SerializeObject(this, Formatting.Indented));
         }
 
+        public static void CheckDataset(Dataset dataset)
+        {
+            // Make sure that the dataset loaded does not have null fields, duplicated activity labels or resident names
+            if (dataset.Name == null)
+            {
+                dataset.Name = "Unknown Dataset";
+            }
+            Dictionary<string, int> duplicateDict = new Dictionary<string, int>();
+            foreach (Activity activity in dataset.Activities)
+            {
+                if (activity.Name == null)
+                {
+                    activity.Name = "_";
+                    dataset.IsModified = true;
+                }
+                if (duplicateDict.ContainsKey(activity.Name))
+                {
+                    duplicateDict[activity.Name]++;
+                    activity.Name += string.Format("_({0})", duplicateDict[activity.Name]);
+                    Logger.Instance.Warn("LoadDatasetsAsync", string.Format(
+                        "Duplicate Activity {0} found in dataset {1}", activity.Name, dataset.Name
+                        ));
+                    dataset.IsModified = true;
+                }
+                else
+                {
+                    duplicateDict.Add(activity.Name, 0);
+                }
+            }
+            duplicateDict.Clear();
+            foreach (Resident resident in dataset.Residents)
+            {
+                if (resident.Name == null)
+                {
+                    resident.Name = "_";
+                    dataset.IsModified = true;
+                }
+                if (duplicateDict.ContainsKey(resident.Name))
+                {
+                    duplicateDict[resident.Name]++;
+                    resident.Name += string.Format("_({0})", duplicateDict[resident.Name]);
+                    Logger.Instance.Warn("LoadDatasetsAsync", string.Format(
+                        "Duplicate Resident {0} found in dataset {1}", resident.Name, dataset.Name
+                        ));
+                    dataset.IsModified = true;
+                }
+                else
+                {
+                    duplicateDict.Add(resident.Name, 0);
+                }
+            }
+        }
+
         public static async Task<Dataset> LoadMetadataFromFolderAsync(StorageFolder folder)
         {
+            var jsonSerializerSettings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
             StorageFile datasetMetaFile = await folder.GetFileAsync("dataset.json");
             string datasetMetaString = await FileIO.ReadTextAsync(datasetMetaFile);
-            Dataset dataset = JsonConvert.DeserializeObject<Dataset>(datasetMetaString);
+            Dataset dataset = JsonConvert.DeserializeObject<Dataset>(datasetMetaString, jsonSerializerSettings);
+            CheckDataset(dataset);
             dataset.Folder = folder;
             dataset.PrepareData();
             return dataset;
