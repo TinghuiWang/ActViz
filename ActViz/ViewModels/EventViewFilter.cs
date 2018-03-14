@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace ActViz.ViewModels
 {
@@ -14,6 +16,9 @@ namespace ActViz.ViewModels
         public HashSet<string> SensorCategories { get; set; }
         public bool HideEventsWithoutActivity { get; set; }
         public bool HideEventsWithoutResident { get; set; }
+
+        [DefaultValue(true)]
+        public bool IsActivityFilterEnabled { get; set; }
 
         public EventViewFilter()
         {

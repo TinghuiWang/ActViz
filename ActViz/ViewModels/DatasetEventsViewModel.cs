@@ -46,6 +46,7 @@ namespace ActViz.ViewModels
         ObservableCollection<SensorEventViewModel> _allEventsInView = new ObservableCollection<SensorEventViewModel>();
         public AdvancedCollectionView EventsInView;
         private Dictionary<DateTimeOffset, EventOffset> _dictDateEvents = new Dictionary<DateTimeOffset, EventOffset>();
+        List<HashSet<string>> _activeSensorsList = new List<HashSet<string>>();
 
         private SensorEventViewModel _selectedSensorEvent;
         public SensorEventViewModel SelectedSensorEvent
@@ -324,9 +325,16 @@ namespace ActViz.ViewModels
 
         private bool ApplyActivityFilter(SensorEventViewModel sensorEvent)
         {
-            if(EventViewFilter.Activities.Contains(sensorEvent.Activity.Name))
-                return true;
-            return sensorEvent.Activity == ActivityViewModel.NullActivity;
+            if(EventViewFilter.IsActivityFilterEnabled && EventViewFilter.Activities.Count > 0)
+            {
+                if (EventViewFilter.Activities.Contains(sensorEvent.Activity.Name))
+                    return true;
+                return sensorEvent.Activity == ActivityViewModel.NullActivity;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private void ExpandFilteredEvents(int idEvent)
@@ -382,7 +390,7 @@ namespace ActViz.ViewModels
 
         private void ApplyFilter()
         {
-            bool IsActivityFilterEnabled = (EventViewFilter.Activities.Count < Dataset.Activities.Count);
+            bool IsActivityFilterEnabled = EventViewFilter.IsActivityFilterEnabled;
             // Apply filter to all events
             for(int idEvent = 0; idEvent < _allEventsInView.Count; idEvent ++)
             {
@@ -555,8 +563,11 @@ namespace ActViz.ViewModels
 
         public async Task LoadEventsAsync(DateTimeOffset date, bool forceReload = false)
         {
+            // Off states
+            HashSet<string> sensorOffSet = new HashSet<string>() { "off", "close", "absent" };
             if (!forceReload && date == CurrentDate) return;
             _allEventsInView.Clear();
+            _activeSensorsList.Clear();
             EventOffset eventOffsetTuple;
             if (_dictDateEvents.TryGetValue(date, out eventOffsetTuple))
             {
@@ -564,7 +575,25 @@ namespace ActViz.ViewModels
                 int length = eventOffsetTuple.Length;
                 for (int i = start; i < start + length; i++)
                 {
-                    _allEventsInView.Add(ParseSensorEventFromString(_eventStringList[i]));
+                    SensorEventViewModel currentEvent = ParseSensorEventFromString(_eventStringList[i]);
+                    _allEventsInView.Add(currentEvent);
+                    HashSet<string> currentActiveSensors = (i == start) ? new HashSet<string>() : 
+                        new HashSet<string>(_activeSensorsList[i - start - 1]);
+                    if(sensorOffSet.Contains(currentEvent.SensorState.ToLower()))
+                    {
+                        if(currentActiveSensors.Contains(currentEvent.Sensor.Name))
+                        {
+                            currentActiveSensors.Remove(currentEvent.Sensor.Name);
+                        }
+                    }
+                    else
+                    {
+                        if(!currentActiveSensors.Contains(currentEvent.Sensor.Name))
+                        {
+                            currentActiveSensors.Add(currentEvent.Sensor.Name);
+                        }
+                    }
+                    _activeSensorsList.Add(currentActiveSensors);
                 }
                 InitSensorFireStatus();
                 await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>

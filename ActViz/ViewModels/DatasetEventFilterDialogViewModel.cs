@@ -133,6 +133,7 @@ namespace ActViz.ViewModels
             }
             _filter.HideEventsWithoutActivity = !IsNullActivityVisible;
             _filter.HideEventsWithoutResident = !IsNullResidentVisible;
+            _filter.IsActivityFilterEnabled = IsActivityFilterEnabled;
         }
     }
 
