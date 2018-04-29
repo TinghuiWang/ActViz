@@ -128,10 +128,10 @@ namespace ActViz.ViewModels
             {
                 SensorViewModel sensorViewModel = new SensorViewModel(sensor);
                 _sensorViewModelDict.Add(sensor.Name, sensorViewModel);
-                //if (sensorViewModel.SensorCategories.Intersect(activeSensorCategories).Count() > 0)
-                //{
-                //    _activeSensors.Add(sensorViewModel);
-                //}
+                if (sensorViewModel.SensorCategories.Intersect(activeSensorCategories).Count() > 0)
+                {
+                    _activeSensors.Add(sensorViewModel);
+                }
             }
             foreach (Activity activity in dataset.Activities)
             {
