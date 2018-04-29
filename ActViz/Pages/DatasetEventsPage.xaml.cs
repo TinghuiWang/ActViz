@@ -578,7 +578,16 @@ namespace ActViz.Pages
             {
                 Tuple<SensorViewModel, Rectangle, Viewbox> canvasSensorEntry =
                         canvasSensorList.Find(x => x.Item1.Name == sensorName);
-                canvasSensorEntry.Item2.Fill.Opacity = 1.0;
+                if (canvasSensorEntry == null)
+                {
+                    Logger.Instance.Warn(this.GetType().Name, string.Format(
+                        "Failed to find sensor {0} in active sensor list.", sensorName
+                        ));
+                }
+                else
+                {
+                    canvasSensorEntry.Item2.Fill.Opacity = 1.0;
+                }
             }
             DrawResidentsPath();
             sensorCanvas.InvalidateArrange();
